@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import '/node_modules/flowbite-vue/dist/index.css';
+
+[x-cloak] {
+	display: none;
+}
+
+table {
+	@apply bg-main-700 !important;
+	@apply rounded !important;
+	@apply text-white !important;
+}
+
+table thead {
+	@apply bg-main-800 !important;
+}
+
+table tr td {
+	font-size: 0.9rem;
+}
+
+#dt-search-0:focus {
+	@apply border-main-800 !important;
+	box-shadow: none !important;
+}
+
+.dt-paging-button:hover {
+	@apply bg-slate-200 !important;
+}
+.dt-paging-button[tabindex='0']:hover {
+	background: #2d6a4f !important;
+	border-color: #2d6a4f !important;
+}
+.dt-paging-button.current {
+	@apply bg-main-800 !important;
+	border-color: #2d6a4f !important;
+}
