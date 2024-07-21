@@ -2,45 +2,69 @@
 	import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 	import { FwbBreadcrumb, FwbBreadcrumbItem } from "flowbite-vue";
 	import DialogModal from "@/Components/DialogModal.vue";
+	import AppointmentForm from "@/Pages/Appointments/AppointmentForm.vue";
 
 	import FullCalendar from "@fullcalendar/vue3";
 	import dayGridPlugin from "@fullcalendar/daygrid";
 	import interactionPlugin from "@fullcalendar/interaction";
-	import { usePage } from "@inertiajs/vue3";
+	import { usePage, router } from "@inertiajs/vue3";
 	import { ref } from "vue";
 
-	const props = defineProps({ appointments: Object });
-	const isOpenModal = ref(false);
-	const appointmentDataModal = ref(null);
+	import { dateFormat, appointmentDateFormat } from "@/Helpers/calendar.js";
 
-	console.log(props.appointments);
+	const props = defineProps({ appointments: Object });
+	const isShowModalOpen = ref(false);
+	const isFormModalOpen = ref(false);
+	const selectedAppointment = ref(null);
+	const selectedDate = ref(null);
+	const existingAppointmentsModalForm = ref(null);
+
+	// console.log(props.appointments[0].appointment_date);
 
 	const handleDateClick = (arg) => {
-		console.log(arg);
+		// console.log(arg);
+
+		const currentDate = new Date();
+		const appointmentDate = arg.date;
+
+		// formatear fechas -> 2024-07-22 05:22
+		const currentDateFormat = dateFormat(currentDate);
+		const appointmentDateFormat = dateFormat(appointmentDate);
+
+		// validar fecha futura
+		if (appointmentDate > currentDate) {
+			isFormModalOpen.value = true;
+
+			// obtener citas existentes
+			const existingAppointments = props.appointments.filter((cita) =>
+				cita.appointment_date.startsWith(
+					appointmentDateFormat.substring(0, 10)
+				)
+			);
+
+			selectedDate.value = appointmentDateFormat;
+			existingAppointmentsModalForm.value = existingAppointments;
+		}
 	};
 
+	// show appointment
 	const handleEventClick = (info) => {
-		isOpenModal.value = true;
+		isShowModalOpen.value = true;
 
-		const fecha = info.event.start;
-		const dia = fecha.getDate();
-		const mes = fecha.toLocaleString("es-ES", { month: "long" });
-		const año = fecha.getFullYear();
-		const hora = fecha.getHours();
-		const minutos = fecha.getMinutes().toString().padStart(2, "0");
+		const eventDate = info.event.start;
 
-		const fechaFormateada = `${dia} de ${mes} del ${año} ${hora}:${minutos}`;
-		console.log(fechaFormateada);
+		// 24 de julio del 2024 5:00
+		const dateFormat = appointmentDateFormat(eventDate);
 
-		appointmentDataModal.value = {
+		selectedAppointment.value = {
 			Estado: info.event.title,
-			Fecha: fechaFormateada,
+			Fecha: dateFormat,
 			Paciente: info.event.extendedProps.patientName,
 			Doctor: info.event.extendedProps.doctorName,
 		};
 	};
 
-	const appointments = props.appointments.map((cita) => ({
+	const calendarAppointmentsOptions = props.appointments.map((cita) => ({
 		title: cita.status,
 		start: new Date(cita.appointment_date),
 		patientName: cita.patient.user.name,
@@ -52,7 +76,7 @@
 		initialView: "dayGridMonth",
 		dateClick: handleDateClick,
 		eventClick: handleEventClick,
-		events: appointments,
+		events: calendarAppointmentsOptions,
 		headerToolbar: {
 			left: "prev,next today",
 			center: "title",
@@ -60,8 +84,13 @@
 		},
 	};
 
-	const closeModal = () => {
-		isOpenModal.value = false;
+	const closeModal = (data) => {
+		isShowModalOpen.value = false;
+		isFormModalOpen.value = false;
+
+		if (data && data.status) {
+			router.get("/dashboard");
+		}
 	};
 </script>
 
@@ -77,18 +106,30 @@
 
 		<FullCalendar :options='calendarOptions' />
 
-		<DialogModal :show="isOpenModal" @close='closeModal' maxWidth="xl">
+		<!-- show appointment -->
+		<DialogModal :show="isShowModalOpen" @close='closeModal' maxWidth="xl">
 			<template #title>
 				Información de la cita
 			</template>
 
 			<template #content>
 				<div class="mt-4 space-y-4">
-					<div v-for="(value, key) in appointmentDataModal" :key="key" class="text-center">
+					<div v-for="(value, key) in selectedAppointment" :key="key" class="text-center">
 						<span class="block">{{key}}</span>
 						<span class="text-lg">{{value}}</span>
 					</div>
 				</div>
+			</template>
+		</DialogModal>
+
+		<!-- create appointment -->
+		<DialogModal :show="isFormModalOpen" @close='closeModal' maxWidth="xl">
+			<template #title>
+				Crear cita
+			</template>
+
+			<template #content>
+				<AppointmentForm @close='closeModal' :date="selectedDate" :dates="existingAppointmentsModalForm" />
 			</template>
 		</DialogModal>
 	</DashboardLayout>

@@ -42,9 +42,7 @@
 
 		//si no se manda un true o un false para abrir el modal se pone null
 		if (!value) {
-			setTimeout(() => {
-				modalUser.value = null;
-			}, 500);
+			modalUser.value = null;
 		}
 	};
 

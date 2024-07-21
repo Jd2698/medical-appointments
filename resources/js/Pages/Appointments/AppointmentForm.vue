@@ -6,8 +6,11 @@
 	import PrimaryButton from "@/Components/PrimaryButton.vue";
 	import TextInput from "@/Components/TextInput.vue";
 	import ActionMessage from "@/Components/ActionMessage.vue";
+	import { onMounted, watch, ref } from "vue";
 
-	const props = defineProps({ appointment: Object });
+	import { dateFormat, addMinutes, rangeNotValid } from "@/Helpers/calendar.js";
+
+	const props = defineProps({ appointment: Object, date: String, dates: Object });
 	const emit = defineEmits(["close"]);
 
 	const form = useForm({
@@ -15,48 +18,96 @@
 		doctor_id: props.appointment ? props.appointment.doctor_id : "select",
 		appointment_date: props.appointment
 			? props.appointment.appointment_date
-			: "",
+			: props.date,
 		notes: props.appointment ? props.appointment.notes : "",
 		status: props.appointment
 			? props.appointment.status
 			: usePage().props.appointmentsStatuses[0],
 	});
 
-	const submit = () => {
-		if (!props.appointment) {
-			form.post(route("appointments.store"), {
-				onSuccess: () => {
-					form.reset();
-					emit("close", {
-						status: true,
-						type: "success",
-						message: "Appointment has been created",
-					});
-				},
-			});
-		} else {
-			const { format_notes, updated_at, created_at, deleted_at, ...data } =
-				props.appointment;
+	const inputDate = ref(null);
+	const hourFormat = ref(null);
+	const rangeError = ref(false);
 
-			form.put(route("appointments.update", data), {
-				onSuccess: () => {
-					form.reset();
-					emit("close", {
-						status: true,
-						type: "success",
-						message: "Appointment has been updated",
-					});
-				},
-			});
+	const hoursRanges = props.dates.map((date) => {
+		const dateLength = date.appointment_date.length;
+		const start = date.appointment_date.substring(dateLength - 5, dateLength);
+		const end = addMinutes(start, 30);
+
+		return { start, end };
+	});
+
+	const timeChange = () => {
+		hourFormat.value = form.appointment_date.substring(
+			form.appointment_date.length - 5,
+			form.appointment_date.length
+		);
+	};
+
+	const addLimitInputDate = () => {
+		const fechaActual = new Date();
+		fechaActual.setDate(fechaActual.getDate() + 1);
+		const fechaActualFormat = dateFormat(fechaActual);
+		inputDate.value.min = fechaActualFormat;
+	};
+
+	const submit = () => {
+		if (!rangeError.value) {
+			// create
+			if (!props.appointment) {
+				form.post(route("appointments.store"), {
+					onSuccess: () => {
+						form.reset();
+						emit("close", {
+							status: true,
+							type: "success",
+							message: "Appointment has been created",
+						});
+					},
+				});
+			} else {
+				const {
+					format_notes,
+					updated_at,
+					created_at,
+					deleted_at,
+					...data
+				} = props.appointment;
+
+				form.put(route("appointments.update", data), {
+					onSuccess: () => {
+						form.reset();
+						emit("close", {
+							status: true,
+							type: "success",
+							message: "Appointment has been updated",
+						});
+					},
+				});
+			}
 		}
 	};
+
+	onMounted(() => {
+		addLimitInputDate();
+		timeChange();
+	});
+
+	watch(hourFormat, async (newValue, oldValue) => {
+		rangeError.value = false;
+		hoursRanges.forEach((hour) => {
+			if (rangeNotValid(hourFormat.value, hour)) {
+				rangeError.value = true;
+				return;
+			}
+		});
+	});
 </script>
 
 <template>
 
 	<form @submit.prevent="submit" class="grid grid-cols-2 gap-2">
 		<!-- {{$page.props.patients[0]}} -->
-		<!-- {{$page.props.doctors[0]}} -->
 
 		<!-- patient_id -->
 		<div class="col-span-2">
@@ -85,8 +136,9 @@
 		<!-- appointment_date -->
 		<div class="mt-4">
 			<InputLabel for="appointment_date" value="Appointment Date" />
-			<input type="datetime-local" v-model="form.appointment_date" id="appointment_date" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
+			<input ref="inputDate" type="datetime-local" v-model="form.appointment_date" @change="timeChange" id="appointment_date" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
 			<InputError class="mt-2" :message="form.errors.appointment_date" />
+			<InputError v-if="rangeError" class="mt-2" message="Rango de fecha no válida" />
 		</div>
 
 		<!-- notes -->
