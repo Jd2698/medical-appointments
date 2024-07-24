@@ -11,7 +11,7 @@
 table {
 	@apply bg-main-700 !important;
 	@apply rounded !important;
-	@apply text-white !important;
+	@apply text-main-fontDataTable !important;
 }
 
 table thead {
@@ -31,8 +31,8 @@ table tr td {
 	@apply bg-slate-200 !important;
 }
 .dt-paging-button[tabindex='0']:hover {
-	background: #2d6a4f !important;
-	border-color: #2d6a4f !important;
+	background: #aac6bb !important;
+	border-color: #aac6bb !important;
 }
 .dt-paging-button.current {
 	@apply bg-main-800 !important;

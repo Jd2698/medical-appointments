@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\GendersEnum;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,20 +13,24 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles')->get();
-        $genders = ['male', 'female'];
-        return Inertia::render('Users/Index', compact('users', 'genders'));
+        $genders = GendersEnum::cases();
+
+        return Inertia::render(
+            'Users/Index',
+            compact(
+                'users',
+                'genders'
+            )
+        );
     }
 
     public function store(UserRequest $request)
     {
-
-        // dd($request->all());
         $data = $request->except('role', 'password_confirmation');
 
         $data['password'] = bcrypt($request->password);
 
         User::create($data)->assignRole($request->role);
-        // return to_route('users.index');
     }
 
     public function show(User $user)
@@ -46,13 +51,10 @@ class UserController extends Controller
             $user->update($data);
         }
         $user->syncRoles($request->role);
-
-        // return to_route('users.index');
     }
 
     public function destroy(User $user)
     {
         $user->delete();
-        // return to_route('users.index');
     }
 }

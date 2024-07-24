@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\specialty;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,8 +20,7 @@ class DoctorFactory extends Factory
     public function definition(): array
     {
         return [
-            'specialty' =>
-            $this->faker->sentence(5, true),
+            'specialty_id' => specialty::first()->id,
             'ratings' => $this->faker->randomDigit(1)
         ];
     }

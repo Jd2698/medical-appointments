@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AppointmentStatusEnum;
 use App\Http\Requests\AppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
-use App\Models\User;
+use App\Models\Specialty;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,13 +16,23 @@ class AppointmentController extends Controller
 
     public function index()
     {
-        $appointments = Appointment::with(['patient.user', 'doctor.user'])->orderBy('status', 'DESC')->get();
-        $patients = Patient::with('user')->get();
+        $specialties = Specialty::all();
         $doctors = Doctor::with('user')->get();
+        $patients = Patient::with('user')->get();
 
-        $appointmentsStatuses = ['pending', 'confirmed', 'cancelled', 'completed'];
+        $appointmentsStatuses = AppointmentStatusEnum::cases();
+        $appointments = Appointment::with('patient.user', 'doctor.user')->get();
 
-        return Inertia::render('Appointments/Index', compact('appointments', 'patients', 'doctors', 'appointmentsStatuses'));
+        return Inertia::render(
+            'Appointments/Index',
+            compact(
+                'appointments',
+                'appointmentsStatuses',
+                'specialties',
+                'patients',
+                'doctors'
+            )
+        );
     }
 
     public function store(AppointmentRequest $request)

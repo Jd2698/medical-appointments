@@ -1,145 +1,142 @@
 <script setup>
-	import { Link, usePage } from "@inertiajs/vue3";
-	import { ref, onMounted } from "vue";
-	import AppLayout from "@/Layouts/DashboardLayout.vue";
-	import Modal from "./Modal.vue";
+	import { usePage, router } from "@inertiajs/vue3";
+	import { ref } from "vue";
+
+	import DashboardLayout from "@/Layouts/DashboardLayout.vue";
+	import DialogModal from "@/Components/DialogModal.vue";
+	import AppointmentForm from "@/Pages/Appointments/Modals/AppointmentForm.vue";
+	import AppointmentUpdateStatus from "@/Pages/Appointments/Modals/AppointmentUpdateStatus.vue";
 	import { FwbBreadcrumb, FwbBreadcrumbItem } from "flowbite-vue";
-	import { FwbAlert } from "flowbite-vue";
 
-	import DataTable from "datatables.net-vue3";
-	import DataTablesCore from "datatables.net";
-	import "datatables.net-responsive";
+	import FullCalendar from "@fullcalendar/vue3";
+	import esLocale from "@fullcalendar/core/locales/es";
+	import dayGridPlugin from "@fullcalendar/daygrid";
+	import interactionPlugin from "@fullcalendar/interaction";
 
-	DataTable.use(DataTablesCore);
+	import { dateFormat, appointmentDateFormat } from "@/Helpers/calendar.js";
 
-	const props = defineProps(["appointments"]);
-	const modalShow = ref(false);
-	const modalAppointment = ref(null);
-	const alertStatus = ref({ status: false });
+	const props = defineProps({ appointments: Object });
+	const isShowModalOpen = ref(false);
+	const isFormModalOpen = ref(false);
+	const selectedAppointment = ref(null);
+	const selectedDate = ref(null);
+	const existingAppointmentsModalForm = ref(null);
 
-	const deleteAppointment = async (appointment) => {
-		const res = await axios.delete(route("appointments.destroy", appointment));
+	// console.log(props.appointments[0].date);
 
-		let appointmentIndex = props.appointments.indexOf(appointment);
-		props.appointments.splice(appointmentIndex, 1);
+	const handleDateClick = (arg) => {
+		// console.log(arg.date);
 
-		alertStatus.value = {
-			status: true,
-			type: "success",
-			message: "Appointment has been deleted",
+		const currentDate = new Date();
+		const appointmentDate = arg.date;
+
+		// formatear fechas -> 2024-07-22
+		const currentDateFormat = dateFormat(currentDate);
+		const appointmentDateFormat = dateFormat(appointmentDate);
+
+		console.log(currentDateFormat);
+		console.log(appointmentDateFormat);
+
+		// validar fecha futura
+		if (appointmentDate > currentDate) {
+			isFormModalOpen.value = true;
+			// obtener citas existentes
+			// const existingAppointments = props.appointments.filter((cita) =>
+			// 	cita.start_time.startsWith(appointmentDateFormat.substring(0, 10))
+			// );
+			selectedDate.value = appointmentDateFormat;
+			// existingAppointmentsModalForm.value = existingAppointments;
+		}
+	};
+
+	// show appointment
+	const handleEventClick = (info) => {
+		isShowModalOpen.value = true;
+
+		const eventDate = info.event.start;
+
+		// 24 de julio del 2024 5:00
+		const dateFormat = appointmentDateFormat(eventDate);
+
+		selectedAppointment.value = {
+			estado: info.event.title,
+			fecha: dateFormat,
+			paciente: info.event.extendedProps.patientName,
+			doctor: info.event.extendedProps.doctorName,
+			allData: info.event.extendedProps.allData,
 		};
 	};
 
-	const onHandleModal = (value, statusOjbect) => {
-		modalShow.value = value;
-		statusOjbect ? (alertStatus.value = statusOjbect) : "";
+	const calendarAppointmentsOptions = props.appointments.map((cita) => ({
+		title: cita.status,
+		start: cita.date,
+		patientName: cita.patient.user.name,
+		doctorName: cita.doctor.user.name,
+		allData: cita,
+	}));
 
-		//si no se manda un true o un false para abrir el modal se pone null
-		if (!value) {
-			modalAppointment.value = null;
-		}
-	};
-
-	const handleAction = (event) => {
-		const button = event.target;
-		const appointment_id = button.getAttribute("data-id");
-		const appointment = props.appointments.find((u) => u.id == appointment_id);
-
-		if (button.getAttribute("role") == "edit") {
-			onHandleAppointment(appointment);
-		} else if (button.getAttribute("role") == "delete") {
-			deleteAppointment(appointment);
-		}
-	};
-
-	const onHandleAppointment = async (appointment) => {
-		modalAppointment.value = appointment;
-		onHandleModal(true);
-	};
-
-	const columns = [
-		{ data: "id", title: "Id" },
-		{ data: "status", title: "Status" },
-		{ data: "appointment_date", title: "Date" },
-		{ data: "patient.user.name", title: "Patient" },
-		{ data: "doctor.user.name", title: "Doctor" },
-		{
-			data: null,
-			title: "Actions",
-			render: function (data, type, row) {
-				return `<div class="flex gap-2 justify-center" data-role='actions'><button onclick='event.preventDefault();' data-id='${row.id}' role='edit' class="bg-[#2d6a4f] px-2 py-1 rounded"><i class='' data-id='${row.id}' role='edit'>Edit</i></button><button onclick='event.preventDefault();' data-id='${row.id}' role='delete' class="bg-[#1b4332] px-2 py-1 rounded">Delete<i class='' data-id='${row.id}' role='delete'></i></button></div>`;
-			},
+	const calendarOptions = {
+		plugins: [dayGridPlugin, interactionPlugin],
+		locales: [esLocale],
+		// initialView: "dayGridMonth",
+		dateClick: handleDateClick,
+		eventClick: handleEventClick,
+		events: calendarAppointmentsOptions,
+		headerToolbar: {
+			left: "prev,next today",
+			center: "title",
+			right: "dayGridMonth,dayGridWeek,dayGridDay",
 		},
-	];
-
-	const options = {
-		responsive: true,
-		order: [[1, "desc"]],
-		select: {
-			style: "single",
-			className: "row-selected",
-			blurable: true,
-		},
-		pageLength: 8,
-		info: true,
-		lengthChange: false,
-		language: {
-			// search: "Buscar:",
-			// lengthMenu: "Mostrar _MENU_ registros por página",
-			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-			paginate: {
-				first: "first",
-				last: "last",
-				next: "next",
-				previous: "previous",
+		dayMaxEventRows: true,
+		views: {
+			timeGrid: {
+				dayMaxEventRows: 3,
 			},
 		},
 	};
 
-	console.log(usePage().props.appointments);
+	const closeModal = (data) => {
+		isShowModalOpen.value = false;
+		isFormModalOpen.value = false;
+
+		if (data && data.status) {
+			router.get("/dashboard");
+		}
+	};
 </script>
 
 <template>
-	<!-- {{$page.props.appointments[0]}} -->
-	<AppLayout title="Dashboard Users">
-		<div v-show="alertStatus.status" class="vp-raw grid gap-2">
-			<template v-if="alertStatus.type == 'success'">
-				<fwb-alert icon type="success" @click="alertStatus.status = false">
-					{{alertStatus.message}}
-				</fwb-alert>
-			</template>
-			<template v-else-if="alertStatus.type == 'danger'">
-				<fwb-alert icon type="danger" @click="alertStatus.status = false">
-					{{alertStatus.message}}
-				</fwb-alert>
-			</template>
-		</div>
-		<Modal :show="modalShow" @close="onHandleModal" :appointment="modalAppointment" />
-
+	<DashboardLayout title="Dashboard">
 		<template #mainHeader>
 			<fwb-breadcrumb>
-				<li class="inline-flex items-center">
-					<Link :href="route('dashboard')" class="ml-1 inline-flex items-center text-sm font-medium  text-gray-700 hover:text-gray-900">
-					Dashboard
-					</Link>
-				</li>
 				<fwb-breadcrumb-item>
-					Appointments
+					Dashboard
 				</fwb-breadcrumb-item>
 			</fwb-breadcrumb>
-			<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 hover:bg-main-700 text-white font-medium p-2 rounded">
-				Add
-			</button>
 		</template>
-		<div>
-			<DataTable :data="appointments" :columns="columns" :options="options" class="display table-bordered">
-				<tbody @click="handleAction"></tbody>
-			</DataTable>
-		</div>
-	</AppLayout>
-</template>
 
-<style>
-@import "datatables.net-dt";
-@import "datatables.net-responsive-dt";
-</style>
+		<FullCalendar :options='calendarOptions' />
+
+		<!-- show appointment -->
+		<DialogModal :show="isShowModalOpen" @close='closeModal' maxWidth="xl">
+			<template #title>
+				Información de la cita
+			</template>
+
+			<template #content>
+				<AppointmentUpdateStatus @close='closeModal' :selectedAppointment="selectedAppointment" />
+			</template>
+		</DialogModal>
+
+		<!-- create appointment -->
+		<DialogModal :show="isFormModalOpen" @close='closeModal' maxWidth="xl">
+			<template #title>
+				Crear cita
+			</template>
+
+			<template #content>
+				<AppointmentForm @close='closeModal' :date="selectedDate" :dates="existingAppointmentsModalForm" />
+			</template>
+		</DialogModal>
+	</DashboardLayout>
+</template>

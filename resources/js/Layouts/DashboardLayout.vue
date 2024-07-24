@@ -5,6 +5,7 @@
 
 	import { FwbSidebar, FwbSidebarItem } from "flowbite-vue";
 	import UsersIcon from "@/Components/Icons/UsersIcon.vue";
+	import UserMdIcon from "@/Components/Icons/UserMdIcon.vue";
 	import CalendarIcon from "@/Components/Icons/CalendarIcon.vue";
 	import LogoutIcon from "@/Components/Icons/LogoutIcon.vue";
 	import HomeIcon from "@/Components/Icons/HomeIcon.vue";
@@ -38,40 +39,33 @@
 		<!-- sidebar -->
 		<div :class="sidebarClasses">
 			<div class="h-20 border-b border-zinc-900 flex items-center justify-center">
-				<span class="text-lg">Hospital</span>
+				<span class="text-main-fontSide text-lg">Hospital</span>
 			</div>
 			<nav>
 				<NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-					<HomeIcon />
-					<span class="text-slate-300 group-hover:text-slate-50 group-[.is-active]:text-slate-50">
-						Dashboard
+					<CalendarIcon />
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+						Appointments
 					</span>
 				</NavLink>
 
 				<NavLink :href="route('users.index')" :active="route().current('users.index')">
 					<UsersIcon />
-					<span class="text-slate-300 group-hover:text-slate-50 group-[.is-active]:text-slate-50">
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
 						Users
 					</span>
 				</NavLink>
 
 				<NavLink :href="route('doctors.index')" :active="route().current('doctors.index')">
-					<UsersIcon />
-					<span class="text-slate-300 group-hover:text-slate-50 group-[.is-active]:text-slate-50">
+					<UserMdIcon height="30" />
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
 						Doctors
-					</span>
-				</NavLink>
-
-				<NavLink :href="route('appointments.index')" :active="route().current('appointments.index')">
-					<CalendarIcon />
-					<span class="text-slate-300 group-hover:text-slate-50 group-[.is-active]:text-slate-50">
-						Appointment
 					</span>
 				</NavLink>
 
 				<NavLink as="button" @click="logout" href="">
 					<LogoutIcon />
-					<span class="text-slate-300 group-hover:text-slate-50 group-[.is-active]:text-slate-50">
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
 						Logout
 					</span>
 				</NavLink>
@@ -79,7 +73,7 @@
 		</div>
 
 		<!-- Page Content -->
-		<main class="h-screen grow overflow-x-hidden overflow-y-scroll p-10 space-y-2">
+		<main class="h-screen bg-main-bg grow overflow-x-hidden overflow-y-scroll p-10 space-y-2">
 			<div class="flex flex-col md:flex-row md:justify-between relative">
 				<button class="md:hidden absolute -right-4 -top-4" @click="onHandleSidebar">
 					<i class="fas fa-bars"></i>

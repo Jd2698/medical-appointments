@@ -2,23 +2,33 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\GendersEnum;
+use App\Enums\RolesEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
 
-    protected $rules = [
-        'name' => ['required'],
-        'documento_identidad' => ['required', 'numeric'],
-        'gender' => ['required', 'in:male,female'],
-        'birthdate' => ['required', 'date'],
-        'address' => ['required'],
-        'phone' => ['required', 'numeric'],
-        'email' => ['required', 'email'],
-        'password' => ['required', 'confirmed'],
-        'role' => ['required', 'in:admin,client']
-    ];
+    protected $rules;
+
+    public function __construct()
+    {
+        $this->rules =
+            [
+                'name' => ['required'],
+                'documento_identidad' => ['required', 'numeric'],
+                'gender' => ['required', Rule::in(GendersEnum::cases())],
+                'birthdate' => ['required', 'date'],
+                'address' => ['required'],
+                'phone' => ['required', 'numeric'],
+                'email' => ['required', 'email'],
+                'password' => ['required', 'confirmed'],
+                'role' => ['required', Rule::in(RolesEnum::cases())]
+            ];
+    }
+
     public function authorize(): bool
     {
         return Auth::check();

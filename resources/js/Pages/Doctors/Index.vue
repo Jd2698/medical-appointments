@@ -4,8 +4,8 @@
 	import AppLayout from "@/Layouts/DashboardLayout.vue";
 	import Welcome from "@/Components/Welcome.vue";
 	import Modal from "./Modal.vue";
+	import StatusAlerts from "@/Components/UI/StatusAlerts.vue";
 	import { FwbBreadcrumb, FwbBreadcrumbItem } from "flowbite-vue";
-	import { FwbAlert } from "flowbite-vue";
 
 	import DataTable from "datatables.net-vue3";
 	import DataTablesCore from "datatables.net";
@@ -13,7 +13,7 @@
 
 	DataTable.use(DataTablesCore);
 
-	const props = defineProps(["doctors"]);
+	const props = defineProps(["doctors", "genders", "specialties"]);
 	const modalShow = ref(false);
 	const modalDoctor = ref(null);
 	const alertStatus = ref({ status: false });
@@ -63,13 +63,13 @@
 	const columns = [
 		{ data: "user.name", title: "Name" },
 		{ data: "user.documento_identidad", title: "Documento" },
-		{ data: "specialty", title: "Specialty" },
+		{ data: "specialty.name", title: "Specialty" },
 		{ data: "ratings", title: "Ratings" },
 		{
 			data: null,
 			title: "Actions",
 			render: function (data, type, row) {
-				return `<div class="flex gap-2 justify-center" data-role='actions'><button onclick='event.preventDefault();' data-id='${row.id}' role='edit' class="bg-[#2d6a4f] px-2 py-1 rounded">Edit</button><button onclick='event.preventDefault();' data-id='${row.id}' role='delete' class="bg-[#1b4332] px-2 py-1 rounded">Delete</button></div>`;
+				return `<div class="flex gap-2 justify-center" data-role='actions'><button onclick='event.preventDefault();' data-id='${row.id}' role='edit' class="bg-main-800 px-2 py-1 rounded"><i class='' data-id='${row.id}' role='edit'>Edit</i></button><button onclick='event.preventDefault();' data-id='${row.id}' role='delete' class="bg-main-800 px-2 py-1 rounded">Delete<i class='' data-id='${row.id}' role='delete'></i></button></div>`;
 			},
 		},
 	];
@@ -102,20 +102,7 @@
 <template>
 	<!-- {{$page}} -->
 	<AppLayout title="Dashboard Doctors">
-		<div v-show="alertStatus.status" class="vp-raw grid gap-2">
-			<template v-if="alertStatus.type == 'success'">
-				<fwb-alert icon type="success" @click="alertStatus.status = false">
-					{{alertStatus.message}}
-				</fwb-alert>
-			</template>
-			<template v-else-if="alertStatus.type == 'danger'">
-				<fwb-alert icon type="danger" @click="alertStatus.status = false">
-					{{alertStatus.message}}
-				</fwb-alert>
-			</template>
-		</div>
-
-		<Modal :show="modalShow" @close="onHandleModal" :doctor="modalDoctor" />
+		<StatusAlerts :data="alertStatus" />
 
 		<template #mainHeader>
 			<fwb-breadcrumb>
@@ -128,10 +115,12 @@
 					Doctors
 				</fwb-breadcrumb-item>
 			</fwb-breadcrumb>
-			<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 hover:bg-main-700 text-white font-medium p-2 rounded">
+			<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 font-medium p-2 rounded">
 				Add
 			</button>
 		</template>
+
+		<Modal :show="modalShow" @close="onHandleModal" :doctor="modalDoctor" />
 
 		<div>
 			<DataTable :data="doctors" :columns="columns" :options="options" class="display table-bordered">

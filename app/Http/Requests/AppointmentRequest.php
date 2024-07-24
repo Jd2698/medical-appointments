@@ -2,14 +2,16 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AppointmentStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class AppointmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
-        // return Auth::check();
+        return Auth::check();
     }
 
     public function rules(): array
@@ -17,9 +19,11 @@ class AppointmentRequest extends FormRequest
         return [
             'patient_id' => 'required|exists:users,id',
             'doctor_id' => 'required|exists:users,id',
-            'appointment_date' => 'required|date',
-            'notes' => 'nullable',
-            'status' => 'required|in:pending,confirmed,cancelled,completed',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+            'comment' => 'nullable',
+            'status' => Rule::in(AppointmentStatusEnum::cases()),
         ];
     }
 }

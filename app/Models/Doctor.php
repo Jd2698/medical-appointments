@@ -11,13 +11,18 @@ class Doctor extends Model
 
     protected $fillable = [
         'user_id',
-        'specialty',
+        'specialty_id',
         'ratings'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function specialty()
+    {
+        return $this->belongsTo(specialty::class, 'specialty_id', 'id');
     }
 
     public function appointments()

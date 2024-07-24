@@ -45,7 +45,7 @@
 				},
 			});
 		} else {
-			form.put(route("users.update", props.user), {
+			form.put(route("users.update", props.user.id), {
 				onSuccess: () => {
 					form.reset();
 					emit("close", {
@@ -138,7 +138,9 @@
 			<select v-model="form.role" name="role" id="role" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
 				<option value="admin">Admin</option>
 				<option value="client">Client</option>
+				<option value="doctor">Doctor</option>
 			</select>
+			<InputError class="mt-2" :message="form.errors.role" />
 		</div>
 
 		<div class="col-span-2 flex items-center justify-end mt-4">

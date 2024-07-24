@@ -21,15 +21,16 @@ export default {
 			},
 			colors: {
 				main: {
-					200: '#D8F3DC',
-					300: '#B7E4C7',
-					400: '#95D5B2',
-					500: '#74C69D',
-					600: '#52B788',
-					700: '#40916C',
-					800: '#2D6A4F',
-					900: '#1B4332',
-					950: '#081C15'
+					700: '#e0fbe0',
+					800: '#6ebfb6',
+					900: '#227e76',
+					font: '#000',
+					fontSide: 'rgb(250,250,250)',
+					fontDataTable: '#000',
+					hover: '',
+					active: '#fff',
+					sideBarHover: 'rgba(0,0,0,.2)',
+					bg: 'rgb(250,250,250)'
 				}
 			},
 			keyframes: {

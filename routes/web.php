@@ -17,8 +17,8 @@ Route::middleware([
 
     Route::group(['prefix' => 'dashboard/users', 'controller' => UserController::class], function () {
         Route::get('/', 'index')->name('users.index')->middleware('can:read users');
-        Route::post('/', 'store')->name('users.store')->middleware('can:create users');
         Route::get('/{user}', 'show')->name('users.show');
+        Route::post('/', 'store')->name('users.store')->middleware('can:create users');
         Route::put('/{user}', 'update')->name('users.update')->middleware('can:update users');
         Route::delete('/{user}', 'destroy')->name('users.destroy')->middleware('can:delete users');
     });
@@ -32,6 +32,7 @@ Route::middleware([
 
     Route::group(['prefix' => 'dashboard/doctors', 'controller' => DoctorController::class], function () {
         Route::get('/get-all-doctors', 'getAll')->name('doctors.get-all-doctors');
+        Route::get('/get-specialty-doctors', 'getSpecialtyDoctors')->name('doctors.get-specialty-doctors');
         Route::get('/', 'index')->name('doctors.index');
         Route::post('/', 'store')->name('doctors.store');
         Route::put('/{doctor}', 'update')->name('doctors.update');

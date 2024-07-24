@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\GendersEnum;
 use App\Http\Requests\DoctorRequest;
 use App\Models\Doctor;
+use App\Models\Specialty;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,6 +14,7 @@ use Yajra\DataTables\Facades\DataTables;
 class DoctorController extends Controller
 {
 
+    // No se usa, ajax de datatable
     public function getAll()
     {
         $doctor = Doctor::with('user.roles')
@@ -28,45 +31,66 @@ class DoctorController extends Controller
             ->make();
     }
 
+    // filtro para el formulario
+    public function getSpecialtydoctors(Request $request)
+    {
+        $request->validate([
+            'id' => 'exists:specialties,id',
+        ]);
+
+        $doctors = Doctor::with('user')
+            ->where('specialty_id', $request->query('id'))->get();
+
+        return response()->json(["doctors" => $doctors]);
+    }
+
     public function index()
     {
-        $doctors = Doctor::with('user.roles')
+        $doctors = Doctor::with('user.roles', 'specialty')
             ->whereHas('user', function ($query) {
                 $query->whereNotNull('id');
             })->get();
 
-        $genders = ['male', 'female'];
-        return Inertia::render('Doctors/Index', compact('doctors', 'genders'));
+        $genders = GendersEnum::cases();
+        $specialties = Specialty::all();
+
+        return Inertia::render(
+            'Doctors/Index',
+            compact(
+                'doctors',
+                'genders',
+                'specialties'
+            )
+        );
     }
 
     public function store(DoctorRequest $request)
     {
-        $data = $request->except('specialty');
-        $data['password'] = bcrypt($request->password);
+        $request->merge(['password' => bcrypt($request->password)]);
+        $user = User::create($request->all())->assignRole('doctor');
 
-        $user = User::create($data)->assignRole('doctor');
         Doctor::create([
             'user_id' => $user->id,
-            'specialty' => $request->specialty
+            'specialty_id' => $request->specialty_id
         ]);
     }
 
-    public function update(Request $request, Doctor $doctor)
+    public function update(DoctorRequest $request, Doctor $doctor)
     {
-        // dd($request->all());
-        $user = User::find($doctor->user_id);
+        $user = User::findOrFail($doctor->user_id);
 
         if ($request->password) {
-            $password = bcrypt($request->password);
-            $request->merge(['password' => $password]);
+            $request->merge(['password' => bcrypt($request->password)]);
         } else {
-            $request->request->remove('password');
+            $request = $request->except(['password']);
         }
 
-        $user->update($request->all());
-        $user->syncRoles($request->role);
+        $user->update($request);
+        $user->syncRoles($request['role']);
 
-        $doctor->update($request->only('specialty'));
+        $doctor->update([
+            'specialty_id' => $request['specialty_id']
+        ]);
     }
 
     public function destroy(Doctor $doctor)

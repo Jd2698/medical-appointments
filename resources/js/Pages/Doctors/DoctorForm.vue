@@ -11,7 +11,7 @@
 	const emit = defineEmits(["close"]);
 	const isCreate = props.doctor ? false : true;
 
-	// console.log(usePage().props);
+	console.log(props.doctor);
 
 	const form = useForm({
 		name: props.doctor ? props.doctor.user.name : "",
@@ -23,7 +23,7 @@
 		address: props.doctor ? props.doctor.user.address : "",
 		phone: props.doctor ? props.doctor.user.phone : "",
 		email: props.doctor ? props.doctor.user.email : "",
-		specialty: props.doctor ? props.doctor.specialty : "",
+		specialty_id: props.doctor ? props.doctor.specialty.id : "select",
 		role:
 			props.doctor && props.doctor.user.roles[0]
 				? props.doctor.user.roles[0].name
@@ -52,7 +52,7 @@
 				},
 			});
 		} else {
-			form.put(route("doctors.update", props.doctor), {
+			form.put(route("doctors.update", props.doctor.id), {
 				onSuccess: () => {
 					form.reset();
 					emit("close", {
@@ -128,8 +128,15 @@
 		<!-- specialty -->
 		<div class="mt-4 col-span-2 md:col-span-1">
 			<InputLabel for="specialty" value="specialty" />
-			<TextInput id="specialty" v-model="form.specialty" type="text" class="mt-1 block w-full" autofocus autocomplete="specialty" />
-			<InputError class="mt-2" :message="form.errors.specialty" />
+			<select v-model="form.specialty_id" id="specialty" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
+
+				<template v-for="specialty in $page.props.specialties" :key="specialty">
+					<option :value="specialty.id">{{specialty.name}}</option>
+				</template>
+				<option value="select" disabled>SELECT</option>
+
+			</select>
+			<InputError class="mt-2" :message="form.errors.specialty_id" />
 		</div>
 
 		<!-- password -->

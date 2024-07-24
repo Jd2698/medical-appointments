@@ -2,22 +2,18 @@ export const dateFormat = date => {
 	const day = date.getDate().toString().padStart(2, '0')
 	const month = (date.getMonth() + 1).toString().padStart(2, '0')
 	const year = date.getFullYear()
-	const hours = date.getHours().toString().padStart(2, '0')
-	const minutes = date.getMinutes().toString().padStart(2, '0')
 
-	// 2024-07-22 05:22
-	return `${year}-${month}-${day} ${hours}:${minutes}`
+	// 2024-07-22
+	return `${year}-${month}-${day}`
 }
 
 export const appointmentDateFormat = date => {
 	const day = date.getDate()
 	const month = date.toLocaleString('es-ES', { month: 'long' })
 	const year = date.getFullYear()
-	const hour = date.getHours()
-	const minute = date.getMinutes().toString().padStart(2, '0')
 
-	// 24 de julio del 2024 5:00
-	return `${day} de ${month} del ${year} ${hour}:${minute}`
+	// 24 de julio del 2024
+	return `${day} de ${month} del ${year}`
 }
 
 export const addMinutes = (hour, add) => {
