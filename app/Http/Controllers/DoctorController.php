@@ -35,11 +35,11 @@ class DoctorController extends Controller
     public function getSpecialtydoctors(Request $request)
     {
         $request->validate([
-            'id' => 'exists:specialties,id',
+            'specialty_id' => 'exists:specialties,id',
         ]);
 
         $doctors = Doctor::with('user')
-            ->where('specialty_id', $request->query('id'))->get();
+            ->where('specialty_id', $request->query('specialty_id'))->get();
 
         return response()->json(["doctors" => $doctors]);
     }

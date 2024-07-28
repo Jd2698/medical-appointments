@@ -3,16 +3,16 @@
 	import { ref } from "vue";
 	const props = defineProps({ selectedAppointment: Object });
 	const emit = defineEmits(["close"]);
+
 	// console.log(props.selectedAppointment);
 
 	const isButtonEditClick = ref(false);
 	const buttonName = ref("Edit");
 
 	const form = useForm({
-		status: props.selectedAppointment.estado,
+		status: props.selectedAppointment.allData.status,
 		patient_id: props.selectedAppointment.allData.patient.id,
 		doctor_id: props.selectedAppointment.allData.patient.id,
-		appointment_date: props.selectedAppointment.allData.appointment_date,
 	});
 
 	const handleEditClick = (methodObject) => {
@@ -48,8 +48,9 @@
 		<div class="text-center space-y-4">
 
 			<span class="block">Estado</span>
-			<span v-if="!isButtonEditClick" class="text-lg">{{selectedAppointment.estado}}</span>
+			<span v-if="!isButtonEditClick" class="text-lg">{{selectedAppointment.allData.status}}</span>
 
+			<!-- form -->
 			<select v-if="isButtonEditClick" v-model="form.status" class="text-center mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
 				<template v-for="status in $page.props.appointmentsStatuses" :key="status">
 					<option :value="status">{{ status }}</option>
@@ -57,11 +58,24 @@
 			</select>
 
 			<span class="block">Fecha</span>
-			<span class="text-lg">{{selectedAppointment.fecha}}</span>
+			<span class="text-lg">
+				<!-- mejorar esto, hacer un get en el model -->
+				{{
+                    selectedAppointment.fecha
+                    +" | "+
+                    selectedAppointment.allData.start_time.substring(0, 5)
+                    +" - "+
+                    selectedAppointment.allData.end_time.substring(0, 5)
+                }}
+			</span>
 			<span class="block">Paciente</span>
-			<span class="text-lg">{{selectedAppointment.paciente}}</span>
+			<span class="text-lg">{{selectedAppointment.allData.patient.user.name}}</span>
 			<span class="block">Doctor</span>
-			<span class="text-lg">{{selectedAppointment.doctor}}</span>
+			<span class="text-lg">{{selectedAppointment.allData.doctor.user.name}}</span>
+			<template v-if="selectedAppointment.allData.comment">
+				<span class="block">Comment</span>
+				<span class="text-lg">{{selectedAppointment.allData.comment}}</span>
+			</template>
 		</div>
 	</div>
 </template>

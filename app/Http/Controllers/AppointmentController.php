@@ -8,11 +8,39 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Specialty;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
+
+    // validar rangos de hora - debería ser por especialidad
+    public function rangeValidation(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|in:15,30,60'
+        ]);
+
+        // 2024-07-27 4:15
+        $appointmentDate = $request->date . ' ' . $request->start_time;
+        $carbonDate = Carbon::createFromFormat('Y-m-d H:i', $appointmentDate);
+
+        $result = Appointment::formatAppointmentTimes($carbonDate, $request->end_time);
+
+        $exists = Appointment::where('date', $request->date)
+            ->where(function ($query) use ($result) {
+                $query->where(function ($query) use ($result) {
+                    $query->where('start_time', '<', $result['end_time'])
+                        ->where('end_time', '>', $result['start_time']);
+                });
+            })
+            ->exists();
+
+        return response()->json(["isValid" => !$exists]);
+    }
 
     public function index()
     {
@@ -37,13 +65,15 @@ class AppointmentController extends Controller
 
     public function store(AppointmentRequest $request)
     {
+        // 2024-07-27 4:15
+        $appointmentDate = $request->date . ' ' . $request->start_time;
+        $carbonDate = Carbon::createFromFormat('Y-m-d H:i', $appointmentDate);
+
+        $result = Appointment::formatAppointmentTimes($carbonDate, $request->end_time);
+
+        $request->merge(['start_time' => $result["start_time"], 'end_time' => $result["end_time"]]);
+
         Appointment::create($request->all());
-    }
-
-
-    public function show(Appointment $appointment)
-    {
-        //
     }
 
     public function update(AppointmentRequest $request, Appointment $appointment)

@@ -1,120 +1,76 @@
 <script setup>
 	import { Link, useForm, usePage } from "@inertiajs/vue3";
+	import { onMounted, watch, ref } from "vue";
+
+	// components
 	import Checkbox from "@/Components/Checkbox.vue";
 	import InputError from "@/Components/InputError.vue";
 	import InputLabel from "@/Components/InputLabel.vue";
 	import PrimaryButton from "@/Components/PrimaryButton.vue";
 	import TextInput from "@/Components/TextInput.vue";
 	import ActionMessage from "@/Components/ActionMessage.vue";
-	import { onMounted, watch, ref } from "vue";
 
-	import { dateFormat, addMinutes, rangeNotValid } from "@/Helpers/calendar.js";
-	import axios from "axios";
+	// timepicker - datepicker
+	import flatpickr from "flatpickr";
+	import { Spanish } from "flatpickr/dist/l10n/es";
 
-	const props = defineProps({ appointment: Object, date: String, dates: Object });
+	const props = defineProps({ appointment: Object, date: String });
 	const emit = defineEmits(["close"]);
 
-	const inputSelect = ref(null);
 	const specialtyChange = ref("select");
+	const inputSelect = ref(null);
 	const doctors = ref(null);
+
+	const dateInput = ref(null);
+	const timeInput = ref(null);
+	const startTimeInputValue = ref("07:00");
+	const endTimeInputValue = ref("30");
+	const rangeError = ref(false);
 
 	const form = useForm({
 		patient_id: "select",
 		doctor_id: "select",
 		date: props.date,
-		start_time: props.date,
-		end_time: props.date,
+		start_time: "07:00",
+		end_time: "30",
 		comment: "",
 		status: usePage().props.appointmentsStatuses[0],
 	});
 
-	const inputDate = ref(null);
-	const hourFormat = ref(null);
-	const rangeError = ref(false);
+	const addflatPickr = () => {
+		// flatpickr to date
+		flatpickr(dateInput.value, {
+			static: true,
+			locale: Spanish,
+			minDate: new Date().toISOString().slice(0, 7),
+			disable: [
+				{
+					// "2024-07-01",
+					from: new Date().toISOString().slice(0, 7) + "-01",
+					to: "today",
+				},
+			],
+			enableTime: false,
+			dateFormat: "Y-m-d",
+		});
 
-	// const hoursRanges = props.dates.map((date) => {
-	// 	const dateLength = date.appointment_date.length;
-	// 	const start = date.appointment_date.substring(dateLength - 5, dateLength);
-	// 	const end = addMinutes(start, 30);
-
-	// 	return { start, end };
-	// });
-
-	const timeChange = () => {
-		console.log("Hola");
-		// hourFormat.value = form.appointment_date.substring(
-		// 	form.appointment_date.length - 5,
-		// 	form.appointment_date.length
-		// );
+		// flatpickr to time
+		flatpickr(timeInput.value, {
+			static: true,
+			defaultDate: "07:00",
+			enableTime: true,
+			noCalendar: true,
+			dateFormat: "H:i",
+			time_24hr: false,
+			minTime: "07:00",
+			maxTime: "18:00",
+		});
 	};
-
-	const addLimitInputDate = () => {
-		const currentDate = new Date();
-		currentDate.setDate(currentDate.getDate() + 1);
-		currentDate.setHours(0, 0, 0, 0);
-
-		const currentDateFormat = dateFormat(currentDate);
-		inputDate.value.min = currentDateFormat;
-	};
-
-	const submit = () => {
-		if (!rangeError.value) {
-			// create
-			if (!props.appointment) {
-				form.post(route("appointments.store"), {
-					onSuccess: () => {
-						form.reset();
-						emit("close", {
-							status: true,
-							type: "success",
-							message: "Appointment has been created",
-						});
-					},
-				});
-			}
-			// else {
-			// 	form.put(route("appointments.update", props.appointment), {
-			// 		onSuccess: () => {
-			// 			form.reset();
-			// 			emit("close", {
-			// 				status: true,
-			// 				type: "success",
-			// 				message: "Appointment has been updated",
-			// 			});
-			// 		},
-			// 	});
-			// }
-		}
-	};
-
-	onMounted(() => {
-		addLimitInputDate();
-		timeChange();
-		doctors.value = [];
-	});
-
-	// watch(hourFormat, async (newValue, oldValue) => {
-	// 	rangeError.value = false;
-	// 	hoursRanges.forEach((hour) => {
-	// 		if (rangeNotValid(hourFormat.value, hour)) {
-	// 			rangeError.value = true;
-	// 			return;
-	// 		}
-	// 	});
-	// });
-
-	watch(doctors, async (newValue, oldValue) => {
-		if (doctors.value.length > 0) {
-			inputSelect.value.disabled = false;
-		} else {
-			inputSelect.value.disabled = true;
-		}
-	});
 
 	// obtener doctores
 	const handleSelectChange = async () => {
 		const params = {
-			id: specialtyChange.value,
+			specialty_id: specialtyChange.value,
 		};
 
 		try {
@@ -128,12 +84,70 @@
 			console.log(error.response.data.errors);
 		}
 	};
+
+	// isTimeValid
+	const validateTimeRange = async () => {
+		const params = {
+			date: form.date,
+			start_time: startTimeInputValue.value,
+			end_time: endTimeInputValue.value,
+		};
+
+		try {
+			const res = await axios("/dashboard/appointments/range-validation", {
+				params,
+			});
+
+			rangeError.value = !res.data.isValid;
+		} catch (error) {
+			console.log(error.response.data.errors);
+		}
+	};
+
+	onMounted(() => {
+		addflatPickr();
+		validateTimeRange();
+
+		// Initialize the watcher
+		doctors.value = [];
+	});
+
+	watch(doctors, async (newValue, oldValue) => {
+		if (doctors.value.length > 0) {
+			inputSelect.value.disabled = false;
+		} else {
+			inputSelect.value.disabled = true;
+		}
+	});
+
+	watch(startTimeInputValue, async (newValue, oldValue) => validateTimeRange());
+	watch(endTimeInputValue, async (newValue, oldValue) => validateTimeRange());
+
+	const submit = () => {
+		if (!rangeError.value) {
+			// create
+			if (!props.appointment) {
+				form.start_time = startTimeInputValue.value;
+				form.end_time = endTimeInputValue.value;
+
+				form.post(route("appointments.store"), {
+					onSuccess: () => {
+						form.reset();
+						emit("close", {
+							status: true,
+							type: "success",
+							message: "Appointment has been created",
+						});
+					},
+				});
+			}
+		}
+	};
 </script>
 
 <template>
 
 	<form @submit.prevent="submit" class="grid grid-cols-2 gap-2">
-		<!-- {{$page.props.patients[0]}} -->
 
 		<!-- patient_id -->
 		<div class="col-span-2">
@@ -156,7 +170,7 @@
 				</template>
 				<option value="select" selected disabled>SELECT</option>
 			</select>
-			<!-- <InputError class="mt-2" :message="form.errors.specialty_id" /> -->
+			<InputError class="mt-2" :message="form.errors.specialty_id" />
 		</div>
 
 		<!-- doctor_id -->
@@ -174,33 +188,37 @@
 		<!-- date -->
 		<div class="mt-4 col-span-2">
 			<InputLabel for="date" value="Appointment Date" />
-			<input ref="inputDate" type="date" v-model="form.date" @change="timeChange" id="date" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
+			<input ref="dateInput" type="text" v-model="form.date" id="date" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
 			<InputError class="mt-2" :message="form.errors.date" />
-			<InputError v-if="rangeError" class="mt-2" message="Rango de fecha no válida" />
 		</div>
 
 		<!-- start_time -->
 		<div class="mt-4">
 			<InputLabel for="start_time" value="Start time" />
-			<input type="time" v-model="form.start_time" @change="timeChange" id="start_time" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
+			<input ref="timeInput" type="text" v-model="startTimeInputValue" id="start_time" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
 			<InputError class="mt-2" :message="form.errors.start_time" />
+			<InputError v-if="rangeError" class="mt-2" message="Rango de hora no válida" />
 		</div>
 
 		<!-- end_time -->
 		<div class="mt-4">
 			<InputLabel for="end_time" value="End time" />
-			<input type="time" v-model="form.end_time" @change="timeChange" id="end_time" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
+			<select v-model="endTimeInputValue" id="end_time" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
+				<option value="15">15 min</option>
+				<option value="30">30 min</option>
+				<option value="60">1 h</option>
+			</select>
 			<InputError class="mt-2" :message="form.errors.end_time" />
 		</div>
 
-		<!-- notes -->
+		<!-- comment -->
 		<div class="mt-4 col-span-2">
-			<InputLabel for="notes" value="Notes" />
-			<textarea id="notes" v-model="form.notes" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm"></textarea>
-			<InputError class="mt-2" :message="form.errors.notes" />
+			<InputLabel for="comment" value="comment" />
+			<textarea id="comment" v-model="form.comment" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm"></textarea>
+			<InputError class="mt-2" :message="form.errors.comment" />
 		</div>
 
-		<!-- status -->
+		<!-- statuses -->
 		<div class="mt-4">
 			<InputLabel for="status" value="Status" />
 			<select v-model="form.status" name="status" id="status" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
@@ -217,3 +235,9 @@
 		</div>
 	</form>
 </template>
+<style>
+@import "flatpickr/dist/flatpickr.min.css";
+.flatpickr-wrapper {
+	width: 100%;
+}
+</style>

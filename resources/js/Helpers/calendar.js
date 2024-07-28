@@ -15,36 +15,3 @@ export const appointmentDateFormat = date => {
 	// 24 de julio del 2024
 	return `${day} de ${month} del ${year}`
 }
-
-export const addMinutes = (hour, add) => {
-	// 05:00 -> 05:30
-	const partesHora = hour.split(':')
-	const fecha = new Date()
-
-	fecha.setHours(parseInt(partesHora[0]))
-	fecha.setMinutes(parseInt(partesHora[1]))
-
-	fecha.setMinutes(fecha.getMinutes() + add)
-
-	const newHour = fecha.getHours().toString().padStart(2, '0')
-	const newMinutes = fecha.getMinutes().toString().padStart(2, '0')
-
-	return `${newHour}:${newMinutes}`
-}
-
-export const rangeNotValid = (hora1, hora2) => {
-	// 05:00 - 05:30 -> 05:25 x
-	const formHour = parseHour(hora1)
-	const firstRange = parseHour(hora2.start)
-	const secondRange = parseHour(hora2.end)
-
-	return formHour >= firstRange && formHour <= secondRange
-}
-
-function parseHour(hourString) {
-	const [hour, minute] = hourString.split(':')
-	let date = new Date()
-	date.setHours(parseInt(hour))
-	date.setMinutes(parseInt(minute))
-	return date
-}

@@ -3,7 +3,6 @@
 	import { Head, Link, router } from "@inertiajs/vue3";
 	import NavLink from "@/Components/NavLink.vue";
 
-	import { FwbSidebar, FwbSidebarItem } from "flowbite-vue";
 	import UsersIcon from "@/Components/Icons/UsersIcon.vue";
 	import UserMdIcon from "@/Components/Icons/UserMdIcon.vue";
 	import CalendarIcon from "@/Components/Icons/CalendarIcon.vue";
@@ -42,7 +41,7 @@
 				<span class="text-main-fontSide text-lg">Hospital</span>
 			</div>
 			<nav>
-				<NavLink :href="route('dashboard')" :active="route().current('dashboard')">
+				<NavLink :href="route('appointments.index')" :active="route().current('appointments.index')">
 					<CalendarIcon />
 					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
 						Appointments

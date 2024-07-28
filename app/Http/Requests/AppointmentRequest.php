@@ -16,14 +16,22 @@ class AppointmentRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'patient_id' => 'required|exists:users,id',
             'doctor_id' => 'required|exists:users,id',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i',
+            'end_time' => 'required|in:15,30,60',
             'comment' => 'nullable',
             'status' => Rule::in(AppointmentStatusEnum::cases()),
         ];
+
+        if ($this->method() == 'PUT') {
+            $rules['date'] = 'nullable';
+            $rules['start_time'] = 'nullable';
+            $rules['end_time'] = 'nullable';
+        }
+
+        return $rules;
     }
 }

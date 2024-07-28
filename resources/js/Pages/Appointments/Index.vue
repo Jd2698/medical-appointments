@@ -6,7 +6,6 @@
 	import DialogModal from "@/Components/DialogModal.vue";
 	import AppointmentForm from "@/Pages/Appointments/Modals/AppointmentForm.vue";
 	import AppointmentUpdateStatus from "@/Pages/Appointments/Modals/AppointmentUpdateStatus.vue";
-	import { FwbBreadcrumb, FwbBreadcrumbItem } from "flowbite-vue";
 
 	import FullCalendar from "@fullcalendar/vue3";
 	import esLocale from "@fullcalendar/core/locales/es";
@@ -20,7 +19,6 @@
 	const isFormModalOpen = ref(false);
 	const selectedAppointment = ref(null);
 	const selectedDate = ref(null);
-	const existingAppointmentsModalForm = ref(null);
 
 	// console.log(props.appointments[0].date);
 
@@ -31,21 +29,12 @@
 		const appointmentDate = arg.date;
 
 		// formatear fechas -> 2024-07-22
-		const currentDateFormat = dateFormat(currentDate);
 		const appointmentDateFormat = dateFormat(appointmentDate);
-
-		console.log(currentDateFormat);
-		console.log(appointmentDateFormat);
 
 		// validar fecha futura
 		if (appointmentDate > currentDate) {
 			isFormModalOpen.value = true;
-			// obtener citas existentes
-			// const existingAppointments = props.appointments.filter((cita) =>
-			// 	cita.start_time.startsWith(appointmentDateFormat.substring(0, 10))
-			// );
 			selectedDate.value = appointmentDateFormat;
-			// existingAppointmentsModalForm.value = existingAppointments;
 		}
 	};
 
@@ -59,19 +48,15 @@
 		const dateFormat = appointmentDateFormat(eventDate);
 
 		selectedAppointment.value = {
-			estado: info.event.title,
+			title: info.event.title,
 			fecha: dateFormat,
-			paciente: info.event.extendedProps.patientName,
-			doctor: info.event.extendedProps.doctorName,
 			allData: info.event.extendedProps.allData,
 		};
 	};
 
 	const calendarAppointmentsOptions = props.appointments.map((cita) => ({
-		title: cita.status,
+		title: `${cita.status} - ${cita.start_time}`,
 		start: cita.date,
-		patientName: cita.patient.user.name,
-		doctorName: cita.doctor.user.name,
 		allData: cita,
 	}));
 
@@ -108,11 +93,6 @@
 <template>
 	<DashboardLayout title="Dashboard">
 		<template #mainHeader>
-			<fwb-breadcrumb>
-				<fwb-breadcrumb-item>
-					Dashboard
-				</fwb-breadcrumb-item>
-			</fwb-breadcrumb>
 		</template>
 
 		<FullCalendar :options='calendarOptions' />
@@ -135,7 +115,7 @@
 			</template>
 
 			<template #content>
-				<AppointmentForm @close='closeModal' :date="selectedDate" :dates="existingAppointmentsModalForm" />
+				<AppointmentForm @close='closeModal' :date="selectedDate" />
 			</template>
 		</DialogModal>
 	</DashboardLayout>

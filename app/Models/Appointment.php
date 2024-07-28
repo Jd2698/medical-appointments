@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,9 +23,23 @@ class Appointment extends Model
     ];
 
     protected $casts = [
-        // 'appointment_date' => 'datetime:Y-m-d',
-        // 'appointment_date' => 'datetime:Y-m-d H:i',
+        'start_time' => 'datetime:H:i',
+        // 'date' => 'datetime:Y-m-d H:i',
     ];
+
+    public static function formatAppointmentTimes(Carbon $carbonDate, int $endTimeInMinutes): array
+    {
+        $timeFormatted = $carbonDate->format('H:i');
+
+        $carbonDateFinish = clone $carbonDate;
+        $carbonDateFinish->addMinutes($endTimeInMinutes);
+        $timeFinishFormatted = $carbonDateFinish->format('H:i');
+
+        return [
+            'start_time' => $timeFormatted,
+            'end_time' => $timeFinishFormatted
+        ];
+    }
 
     public function patient()
     {

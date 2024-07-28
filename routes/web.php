@@ -5,6 +5,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/pruebas', function () {
+    return Inertia::render('Pruebas');
+});
 
 Route::get('/', [DashboardController::class, 'index']);
 
@@ -24,6 +29,7 @@ Route::middleware([
     });
 
     Route::group(['prefix' => 'dashboard/appointments', 'controller' => AppointmentController::class], function () {
+        Route::get('/range-validation', 'rangeValidation')->name('appointments.rangeValidation');
         Route::get('/', 'index')->name('appointments.index');
         Route::post('/', 'store')->name('appointments.store');
         Route::put('/{appointment}', 'update')->name('appointments.update');

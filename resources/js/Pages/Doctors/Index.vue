@@ -5,7 +5,6 @@
 	import Welcome from "@/Components/Welcome.vue";
 	import Modal from "./Modal.vue";
 	import StatusAlerts from "@/Components/UI/StatusAlerts.vue";
-	import { FwbBreadcrumb, FwbBreadcrumbItem } from "flowbite-vue";
 
 	import DataTable from "datatables.net-vue3";
 	import DataTablesCore from "datatables.net";
@@ -105,19 +104,11 @@
 		<StatusAlerts :data="alertStatus" />
 
 		<template #mainHeader>
-			<fwb-breadcrumb>
-				<li class="inline-flex items-center">
-					<Link :href="route('dashboard')" class="ml-1 inline-flex items-center text-sm font-medium  text-gray-700 hover:text-gray-900">
-					Dashboard
-					</Link>
-				</li>
-				<fwb-breadcrumb-item>
-					Doctors
-				</fwb-breadcrumb-item>
-			</fwb-breadcrumb>
-			<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 font-medium p-2 rounded">
-				Add
-			</button>
+			<div class="w-full text-end">
+				<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 font-medium p-2 rounded">
+					Add
+				</button>
+			</div>
 		</template>
 
 		<Modal :show="modalShow" @close="onHandleModal" :doctor="modalDoctor" />
