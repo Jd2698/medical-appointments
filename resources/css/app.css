@@ -6,6 +6,7 @@
 	display: none;
 }
 
+/* dataTable */
 table {
 	@apply bg-main-700 !important;
 	@apply rounded !important;
@@ -35,4 +36,20 @@ table tr td {
 .dt-paging-button.current {
 	@apply bg-main-800 !important;
 	border-color: #2d6a4f !important;
+}
+
+/* vue-select */
+.v-select {
+	@apply mt-1;
+}
+.v-select .vs__dropdown-toggle {
+	@apply h-full
+    text-base
+    border-gray-300
+    py-1.5
+    focus:border-main-700
+    focus:ring-main-700
+    rounded-md
+    shadow-sm
+    !important;
 }

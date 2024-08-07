@@ -3,23 +3,21 @@
 	import { onMounted, watch, ref } from "vue";
 
 	// components
-	import Checkbox from "@/Components/Checkbox.vue";
 	import InputError from "@/Components/InputError.vue";
 	import InputLabel from "@/Components/InputLabel.vue";
 	import PrimaryButton from "@/Components/PrimaryButton.vue";
-	import TextInput from "@/Components/TextInput.vue";
-	import ActionMessage from "@/Components/ActionMessage.vue";
 
 	// timepicker - datepicker
 	import flatpickr from "flatpickr";
 	import { Spanish } from "flatpickr/dist/l10n/es";
 
 	const props = defineProps({ appointment: Object, date: String });
+	console.log(usePage().props.patients);
 	const emit = defineEmits(["close"]);
 
 	const specialtyChange = ref("select");
 	const inputSelect = ref(null);
-	const doctors = ref(null);
+	const doctors = ref([]);
 
 	const dateInput = ref(null);
 	const timeInput = ref(null);
@@ -42,14 +40,7 @@
 		flatpickr(dateInput.value, {
 			static: true,
 			locale: Spanish,
-			minDate: new Date().toISOString().slice(0, 7),
-			disable: [
-				{
-					// "2024-07-01",
-					from: new Date().toISOString().slice(0, 7) + "-01",
-					to: "today",
-				},
-			],
+			minDate: new Date().fp_incr(1),
 			enableTime: false,
 			dateFormat: "Y-m-d",
 		});
@@ -107,21 +98,11 @@
 	onMounted(() => {
 		addflatPickr();
 		validateTimeRange();
-
-		// Initialize the watcher
-		doctors.value = [];
-	});
-
-	watch(doctors, async (newValue, oldValue) => {
-		if (doctors.value.length > 0) {
-			inputSelect.value.disabled = false;
-		} else {
-			inputSelect.value.disabled = true;
-		}
 	});
 
 	watch(startTimeInputValue, async (newValue, oldValue) => validateTimeRange());
 	watch(endTimeInputValue, async (newValue, oldValue) => validateTimeRange());
+	watch(specialtyChange, async (newValue, oldValue) => handleSelectChange());
 
 	const submit = () => {
 		if (!rangeError.value) {
@@ -152,36 +133,28 @@
 		<!-- patient_id -->
 		<div class="col-span-2">
 			<InputLabel for="patient_id" value="Patient" />
-			<select v-model="form.patient_id" id="patient_id" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
-				<template v-for="patient in $page.props.patients" :key="patient.id">
-					<option :value="patient.id">{{ patient.user.name}}</option>
-				</template>
-				<option value="select" selected disabled>SELECT</option>
-			</select>
+
+			<!-- <v-select id="patient_id" :options="$page.props.patients" v-model="form.patient_id" :reduce="patient => patient.id" label="user_name" :clearable="false" /> -->
+			<v-select id="patient_id" :options="$page.props.patients" v-model="form.patient_id" :reduce="patient => patient.id" label="name" :clearable="false" />
+
 			<InputError class="mt-2" :message="form.errors.patient_id" />
 		</div>
 
 		<!-- choose specialty -->
 		<div class="mt-4 ">
 			<InputLabel for="specialty_id" value="Specialty" />
-			<select v-model="specialtyChange" @change="handleSelectChange" id="specialty_id" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
-				<template v-for="specialty in $page.props.specialties" :key="specialty">
-					<option :value="specialty.id">{{ specialty.name}}</option>
-				</template>
-				<option value="select" selected disabled>SELECT</option>
-			</select>
+
+			<v-select id="specialty_id" :options="$page.props.specialties" v-model="specialtyChange" :reduce="specialty => specialty.id" label="name" :clearable="false" />
+
 			<InputError class="mt-2" :message="form.errors.specialty_id" />
 		</div>
 
 		<!-- doctor_id -->
 		<div class="mt-4">
 			<InputLabel for="doctor_id" value="Doctor" />
-			<select ref="inputSelect" v-model="form.doctor_id" id="doctor_id" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
-				<template v-for="doctor in doctors" :key="doctor">
-					<option :value="doctor.id">{{ doctor.user.name}}</option>
-				</template>
-				<option value="select" selected disabled>SELECT</option>
-			</select>
+
+			<v-select id="doctor_id" :options="doctors" v-model="form.doctor_id" :reduce="doctor => doctor.id" label="user_name" :clearable="false" />
+
 			<InputError class="mt-2" :message="form.errors.doctor_id" />
 		</div>
 
@@ -195,6 +168,7 @@
 		<!-- start_time -->
 		<div class="mt-4">
 			<InputLabel for="start_time" value="Start time" />
+
 			<input ref="timeInput" type="text" v-model="startTimeInputValue" id="start_time" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
 			<InputError class="mt-2" :message="form.errors.start_time" />
 			<InputError v-if="rangeError" class="mt-2" message="Rango de hora no válida" />
@@ -236,6 +210,7 @@
 	</form>
 </template>
 <style>
+@import "vue-select/dist/vue-select.css";
 @import "flatpickr/dist/flatpickr.min.css";
 .flatpickr-wrapper {
 	width: 100%;

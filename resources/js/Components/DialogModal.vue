@@ -35,8 +35,8 @@
 			</div>
 		</div>
 
-		<div class="flex flex-row justify-end px-6 py-4 bg-main-800 text-end">
+		<!-- <div class="flex flex-row justify-end px-6 py-4 bg-main-800 text-end">
 			<slot name="footer" />
-		</div>
+		</div> -->
 	</Modal>
 </template>

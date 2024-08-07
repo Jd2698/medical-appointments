@@ -1,6 +1,6 @@
 <script setup>
 	import { Link, useForm, usePage } from "@inertiajs/vue3";
-	import { computed, onMounted, ref } from "vue";
+	import { onMounted, computed, ref } from "vue";
 
 	import { Form, Field, ErrorMessage } from "vee-validate";
 	import * as Yup from "yup";
@@ -15,11 +15,11 @@
 	import flatpickr from "flatpickr";
 	import { Spanish } from "flatpickr/dist/l10n/es";
 
-	const props = defineProps({ doctor: Object });
-	// console.log(usePage().props.specialties.map((s) => s.id));
+	const props = defineProps({ patient: Object });
+	// console.log(props.patient);
 	const emit = defineEmits(["close"]);
 
-	const isCreate = props.doctor ? false : true;
+	const isCreate = props.patient ? false : true;
 	const optionsUserStatus = [
 		{
 			name: "active",
@@ -33,23 +33,24 @@
 	const dateInput = ref(null);
 
 	const form = useForm({
-		name: props.doctor ? props.doctor.user.name : "",
-		documento_identidad: props.doctor
-			? props.doctor.user.documento_identidad
+		name: props.patient ? props.patient.user.name : "",
+		documento_identidad: props.patient
+			? props.patient.user.documento_identidad
 			: "",
-		gender: props.doctor ? props.doctor.user.gender : "select",
-		birthdate: props.doctor ? props.doctor.user.birthdate : "",
-		address: props.doctor ? props.doctor.user.address : "",
-		phone: props.doctor ? props.doctor.user.phone : "",
-		email: props.doctor ? props.doctor.user.email : "",
-		specialty_id: props.doctor ? props.doctor.specialty.id : "select",
+		gender: props.patient ? props.patient.user.gender : "select",
+		birthdate: props.patient ? props.patient.user.birthdate : "",
+		address: props.patient ? props.patient.user.address : "",
+		phone: props.patient ? props.patient.user.phone : "",
+		email: props.patient ? props.patient.user.email : "",
+		eps: props.patient ? props.patient.eps : "",
+		medical_history: props.patient ? props.patient.medical_history : "",
 		role:
-			props.doctor && props.doctor.user.roles[0]
-				? props.doctor.user.roles[0].name
-				: "doctor",
+			props.patient && props.patient.user.roles[0]
+				? props.patient.user.roles[0].name
+				: "patient",
 		password: "",
 		password_confirmation: "",
-		is_active: props.doctor ? props.doctor.user.is_active : "1",
+		is_active: props.patient ? props.patient.user.is_active : "1",
 	});
 
 	const getMaxDate = () => {
@@ -78,28 +79,28 @@
 	});
 
 	const submit = () => {
-		if (!props.doctor) {
+		if (!props.patient) {
 			form.password = form.documento_identidad;
 			form.password_confirmation = form.documento_identidad;
 
-			form.post(route("doctors.store"), {
+			form.post(route("patients.store"), {
 				onSuccess: () => {
 					form.reset();
 					emit("close", {
 						status: true,
 						type: "success",
-						message: "Doctor has been created",
+						message: "patient has been created",
 					});
 				},
 			});
 		} else {
-			form.put(route("doctors.update", props.doctor.id), {
+			form.put(route("patients.update", props.patient.id), {
 				onSuccess: () => {
 					form.reset();
 					emit("close", {
 						status: true,
 						type: "success",
-						message: "Doctor has been updated",
+						message: "patient has been updated",
 					});
 				},
 			});
@@ -147,13 +148,13 @@
 				[Yup.ref("password"), null],
 				"Passwords must match"
 			),
-			specialty: Yup.number()
-				.required("Gender is required")
-				.typeError("Specialty does not exist")
-				.oneOf(
-					usePage().props.specialties.map((s) => s.id),
-					"Specialty does not exist"
-				),
+			eps: Yup.string()
+				.required("eps is required")
+				.max(30, "Eps must be at most 30 characters"),
+			medical_history: Yup.string().max(
+				100,
+				"History must be at most 100 characters"
+			),
 			is_active: Yup.number()
 				.notRequired()
 				.typeError("Invalid status")
@@ -203,6 +204,7 @@
 
 		<!-- birthdate -->
 		<div class="mt-4">
+
 			<Field name="birthdate" v-model="form.birthdate" v-slot="{ field, errorMessage, valid }">
 				<InputLabel for="birthdate" value="Birthdate" />
 
@@ -241,17 +243,25 @@
 			<InputError class="mt-2" :message="form.errors.email" />
 		</div>
 
-		<!-- specialty -->
+		<!-- eps -->
 		<div class="mt-4 col-span-2 md:col-span-1">
-			<Field name="specialty" v-model="form.specialty_id" v-slot="{ field, errorMessage, valid }">
-				<InputLabel for="specialty" value="specialty" />
+			<InputLabel for="eps" value="eps" />
+			<Field id="eps" name="eps" :validateOnInput="true" v-model="form.eps" type="text" placeholder="Ej: emmsanar" :class="inputClasses" />
 
-				<v-select v-bind="field" id="specialty_id" :options="$page.props.specialties" v-model="form.specialty_id" :reduce="specialty => specialty.id" label="name" :clearable="false" />
+			<ErrorMessage name="eps" class="text-red-800" />
+			<InputError class="mt-2" :message="form.errors.eps" />
+		</div>
+
+		<!-- medical history -->
+		<div class="mt-4 col-span-2">
+			<Field name="medical_history" v-model="form.medical_history" v-slot="{ field, errorMessage, valid }">
+				<InputLabel for="medical_history" value="Medical history" />
+				<textarea v-bind="field" id="medical_history" v-model="form.medical_history" :class="inputClasses"></textarea>
 
 				<span class="text-red-800" v-if="!valid">{{ errorMessage }}</span>
 			</Field>
 
-			<InputError class="mt-2" :message="form.errors.gender" />
+			<InputError class="mt-2" :message="form.errors.medical_history" />
 		</div>
 
 		<!-- password -->
@@ -285,13 +295,6 @@
 
 			<InputError class="mt-2" :message="form.errors.is_active" />
 		</div>
-
-		<!-- roles (completar) -->
-		<!-- <div class="mt-4" v-if="!isCreate">
-			<InputLabel for="role" value="Role" />
-			<v-select id="role" :options="$page.props.roles" v-model="form.role" :clearable="false" />
-			<InputError class="mt-2" :message="form.errors.role" />
-		</div> -->
 
 		<div class="col-span-2 flex items-center justify-end mt-4">
 			<PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">

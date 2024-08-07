@@ -22,6 +22,24 @@ class Appointment extends Model
         'status',
     ];
 
+    protected $appends = ['format_end_time'];
+
+    public function formatEndTime(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                // 2024-07-27 4:15
+                $appointmentDate = $attributes['date'] . ' ' . $attributes['start_time'];
+
+                $carbonDate = Carbon::createFromFormat('Y-d-m H:i:s', $appointmentDate);
+                $carbonDate->addMinutes($attributes['end_time']);
+
+                $formattedDate = $carbonDate->format('H:i');
+                return $formattedDate;
+            },
+        );
+    }
+
     protected $casts = [
         'start_time' => 'datetime:H:i',
         // 'date' => 'datetime:Y-m-d H:i',
@@ -43,7 +61,8 @@ class Appointment extends Model
 
     public function patient()
     {
-        return $this->belongsTo(Patient::class, 'patient_id', 'id');
+        // return $this->belongsTo(Patient::class, 'patient_id', 'id');
+        return $this->belongsTo(User::class, 'patient_id', 'id');
     }
 
     public function doctor()

@@ -32,6 +32,9 @@
         "datatables.net-vue3": "^3.0.1",
         "flatpickr": "^4.6.13",
         "jquery": "^3.7.1",
-        "vue-select": "^4.0.0-beta.6"
+        "sweetalert2": "^11.12.3",
+        "vee-validate": "^4.13.2",
+        "vue-select": "^4.0.0-beta.6",
+        "yup": "^1.4.0"
     }
 }

@@ -28,11 +28,11 @@ class UserFactory extends Factory
             'documento_identidad' => $this->faker->randomNumber(9, true),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'phone' => $this->faker->randomNumber(9, true),
+            'phone' => '3' . $this->faker->randomNumber(9, true),
             'birthdate' => $this->faker->date(),
             'gender' =>
             $this->faker->randomElement([1, 2]),
-            'address' => $this->faker->address(),
+            'address' => $this->faker->streetAddress(),
             'password' => bcrypt('admin123'),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -45,11 +45,18 @@ class UserFactory extends Factory
     public function configure()
     {
         return $this->afterCreating(function (User $user) {
-            $doctor = Doctor::factory(1)->userId($user)->create();
-            $patient = Patient::factory(1)->userId($user)->create();
+            $random = rand(0, 1);
+            if ($random == 1) {
+                $user->assignRole(['doctor', 'patient']);
+                $doctor = Doctor::factory(1)->userId($user)->create();
+            } else {
+                $user->assignRole('patient');
+                $patient = Patient::factory(1)->userId($user)->create();
+            }
+
 
             // echo $patient;
-            Appointment::factory(1)->patientId($patient[0])->doctorId($doctor[0])->create();
+            // Appointment::factory(1)->patientId($patient[0])->doctorId($doctor[0])->create();
         });
     }
 

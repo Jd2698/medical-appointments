@@ -1,6 +1,8 @@
 <script setup>
 	import { Link } from "@inertiajs/vue3";
 	import { ref, computed } from "vue";
+
+	// components
 	import DialogModal from "@/Components/DialogModal.vue";
 	import SecondaryButton from "@/Components/SecondaryButton.vue";
 	import UserForm from "./UserForm.vue";
@@ -9,7 +11,6 @@
 	const emit = defineEmits(["close"]);
 
 	const closeModal = (alertStatus) => {
-		//timeOut para action
 		alertStatus ? emit("close", false, alertStatus) : emit("close", false);
 	};
 

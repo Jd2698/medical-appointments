@@ -39,7 +39,17 @@ class DoctorController extends Controller
         ]);
 
         $doctors = Doctor::with('user')
-            ->where('specialty_id', $request->query('specialty_id'))->get();
+            ->where('specialty_id', $request->query('specialty_id'))
+            ->get()
+            ->map(function ($doctor) {
+                return [
+                    'id' => $doctor->id,
+                    'user_id' => $doctor->user_id,
+                    'specialty_id' => $doctor->specialty_id,
+                    'ratings' => $doctor->ratings,
+                    'user_name' => $doctor->user ? $doctor->user->name : null,
+                ];
+            });
 
         return response()->json(["doctors" => $doctors]);
     }
@@ -48,7 +58,7 @@ class DoctorController extends Controller
     {
         $doctors = Doctor::with('user.roles', 'specialty')
             ->whereHas('user', function ($query) {
-                $query->whereNotNull('id');
+                $query->where('is_active', 1);
             })->get();
 
         $genders = GendersEnum::cases();
@@ -67,7 +77,7 @@ class DoctorController extends Controller
     public function store(DoctorRequest $request)
     {
         $request->merge(['password' => bcrypt($request->password)]);
-        $user = User::create($request->all())->assignRole('doctor');
+        $user = User::create($request->all())->assignRole(['doctor', 'patient']);
 
         Doctor::create([
             'user_id' => $user->id,
@@ -84,9 +94,7 @@ class DoctorController extends Controller
         } else {
             $request = $request->except(['password']);
         }
-
         $user->update($request);
-        $user->syncRoles($request['role']);
 
         $doctor->update([
             'specialty_id' => $request['specialty_id']

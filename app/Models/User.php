@@ -32,6 +32,7 @@ class User extends Authenticatable
         'phone',
         'email',
         'password',
+        'is_active'
     ];
 
     public function patient()

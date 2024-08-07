@@ -5,16 +5,18 @@
 	// components
 	import DialogModal from "@/Components/DialogModal.vue";
 	import SecondaryButton from "@/Components/SecondaryButton.vue";
-	import DoctorForm from "./DoctorForm.vue";
+	import PatientForm from "./PatientForm.vue";
 
-	const props = defineProps({ show: Boolean, doctor: Object });
+	const props = defineProps({ show: Boolean, patient: Object });
 	const emit = defineEmits(["close"]);
 
 	const closeModal = (alertStatus) => {
 		alertStatus ? emit("close", false, alertStatus) : emit("close", false);
 	};
 
-	const title = computed(() => (props.doctor ? "Editar doctor" : "Crear doctor"));
+	const title = computed(() =>
+		props.patient ? "Editar patient" : "Crear patient"
+	);
 </script>
 
 <template>
@@ -25,7 +27,7 @@
 
 		<template #content>
 			<div class="mt-4">
-				<DoctorForm :doctor="doctor" @close='closeModal' />
+				<PatientForm :patient="patient" @close='closeModal' />
 			</div>
 		</template>
 	</DialogModal>

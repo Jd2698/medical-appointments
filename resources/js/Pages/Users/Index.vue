@@ -1,10 +1,11 @@
 <script setup>
 	import { Link, usePage, router } from "@inertiajs/vue3";
 	import { ref, onMounted, computed } from "vue";
+
+	// components
 	import AppLayout from "@/Layouts/DashboardLayout.vue";
 	import Welcome from "@/Components/Welcome.vue";
 	import Modal from "./Modal.vue";
-	import StatusAlerts from "@/Components/UI/StatusAlerts.vue";
 
 	import DataTable from "datatables.net-vue3";
 	import DataTablesCore from "datatables.net";
@@ -13,9 +14,9 @@
 	DataTable.use(DataTablesCore);
 
 	const props = defineProps(["users", "genders"]);
-	const modalShow = ref(false);
+	// console.log(props.users);
+	const isModalOpen = ref(false);
 	const modalUser = ref(null);
-	const alertStatus = ref({ status: false });
 
 	const deleteUser = async (user) => {
 		const res = await axios.delete(route("users.destroy", user));
@@ -34,13 +35,20 @@
 		};
 	};
 
-	const onHandleModal = (value, statusOjbect) => {
-		modalShow.value = value;
+	const onHandleModal = (showModal = false, statusOjbect) => {
+		isModalOpen.value = showModal;
 
-		statusOjbect ? (alertStatus.value = statusOjbect) : "";
+		if (statusOjbect) {
+			Swal.fire({
+				icon: statusOjbect.type,
+				title: statusOjbect.message,
+				showConfirmButton: false,
+				timer: 1500,
+			});
+		}
 
 		//si no se manda un true o un false para abrir el modal se pone null
-		if (!value) {
+		if (!showModal) {
 			modalUser.value = null;
 		}
 	};
@@ -53,9 +61,10 @@
 
 		if (button.getAttribute("role") == "edit") {
 			onHandleUser(user);
-		} else if (button.getAttribute("role") == "delete") {
-			deleteUser(user);
 		}
+		//  else if (button.getAttribute("role") == "delete") {
+		// 	deleteUser(user);
+		// }
 	};
 
 	const onHandleUser = async (user) => {
@@ -65,13 +74,24 @@
 
 	const columns = [
 		{
-			data: "roles[0].name",
+			data: "roles",
 			title: "Role",
 			render: function (data, type, row) {
 				if (data && data.length > 0) {
-					return data;
+					return data.map((d) => d.name).join(" - ");
 				} else {
 					return "Sin role";
+				}
+			},
+		},
+		{
+			data: "is_active",
+			title: "Active",
+			render: function (data, type, row) {
+				if (data == 0) {
+					return "inactive";
+				} else {
+					return "active";
 				}
 			},
 		},
@@ -83,23 +103,18 @@
 			data: null,
 			title: "Actions",
 			render: function (data, type, row) {
-				return `<div class="flex gap-2 justify-center" data-role='actions'><button onclick='event.preventDefault();' data-id='${row.id}' role='edit' class="bg-main-800 px-2 py-1 rounded"><i class='' data-id='${row.id}' role='edit'>Edit</i></button><button onclick='event.preventDefault();' data-id='${row.id}' role='delete' class="bg-main-800 px-2 py-1 rounded">Delete<i class='' data-id='${row.id}' role='delete'></i></button></div>`;
+				return `<div class="flex gap-2 justify-center" data-role='actions'><button onclick='event.preventDefault();' data-id='${row.id}' role='edit' class="w-20 bg-main-800 px-2 py-1 rounded"><i class='' data-id='${row.id}' role='edit'>Edit</i></button></div>`;
 			},
 		},
 	];
 
 	const options = {
 		responsive: true,
-		select: {
-			style: "single",
-			className: "row-selected",
-			blurable: true,
-		},
 		pageLength: 8,
 		info: true,
 		lengthChange: false,
 		language: {
-			// search: "Buscar:",
+			search: "Buscar:",
 			// lengthMenu: "Mostrar _MENU_ registros por página",
 			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
 			paginate: {
@@ -115,17 +130,16 @@
 <template>
 	<!-- {{$page}} -->
 	<AppLayout title="Dashboard Users">
-		<StatusAlerts :data="alertStatus" />
 
 		<template #mainHeader>
 			<div class="w-full text-end">
-				<button @click="onHandleModal(true)" class="md:w-20 bg-main-800 font-medium p-2 rounded">
+				<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 font-medium p-2 rounded">
 					Add
 				</button>
 			</div>
 		</template>
 
-		<Modal :show="modalShow" @close="onHandleModal" :user="modalUser" />
+		<Modal :show="isModalOpen" @close="onHandleModal" :user="modalUser" />
 
 		<div>
 			<DataTable :data="users" :columns="columns" :options="options" class="display table-bordered">

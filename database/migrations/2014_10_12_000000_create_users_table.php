@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
 
+            $table->boolean('is_active')->default(true);
             $table->date('birthdate');
             $table->enum('gender', ['male', 'female']);
             $table->string('phone');

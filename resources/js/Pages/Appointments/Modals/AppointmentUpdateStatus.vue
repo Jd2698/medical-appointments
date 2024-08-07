@@ -1,6 +1,7 @@
 <script setup>
 	import { useForm } from "@inertiajs/vue3";
 	import { ref } from "vue";
+
 	const props = defineProps({ selectedAppointment: Object });
 	const emit = defineEmits(["close"]);
 
@@ -68,10 +69,12 @@
                     selectedAppointment.allData.end_time.substring(0, 5)
                 }}
 			</span>
+
 			<span class="block">Paciente</span>
-			<span class="text-lg">{{selectedAppointment.allData.patient.user.name}}</span>
+			<span class="text-lg">{{selectedAppointment.allData.patient.name}}</span>
 			<span class="block">Doctor</span>
 			<span class="text-lg">{{selectedAppointment.allData.doctor.user.name}}</span>
+
 			<template v-if="selectedAppointment.allData.comment">
 				<span class="block">Comment</span>
 				<span class="text-lg">{{selectedAppointment.allData.comment}}</span>

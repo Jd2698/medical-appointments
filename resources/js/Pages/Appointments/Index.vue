@@ -2,6 +2,7 @@
 	import { usePage, router } from "@inertiajs/vue3";
 	import { ref } from "vue";
 
+	// components
 	import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 	import DialogModal from "@/Components/DialogModal.vue";
 	import AppointmentForm from "@/Pages/Appointments/Modals/AppointmentForm.vue";
@@ -15,12 +16,11 @@
 	import { dateFormat, appointmentDateFormat } from "@/Helpers/calendar.js";
 
 	const props = defineProps({ appointments: Object });
+	console.log(props.appointments);
 	const isShowModalOpen = ref(false);
 	const isFormModalOpen = ref(false);
 	const selectedAppointment = ref(null);
 	const selectedDate = ref(null);
-
-	// console.log(props.appointments[0].date);
 
 	const handleDateClick = (arg) => {
 		// console.log(arg.date);
@@ -55,7 +55,7 @@
 	};
 
 	const calendarAppointmentsOptions = props.appointments.map((cita) => ({
-		title: `${cita.status} - ${cita.start_time}`,
+		title: `${cita.status} / ${cita.start_time}`,
 		start: cita.date,
 		allData: cita,
 	}));
@@ -63,7 +63,6 @@
 	const calendarOptions = {
 		plugins: [dayGridPlugin, interactionPlugin],
 		locales: [esLocale],
-		// initialView: "dayGridMonth",
 		dateClick: handleDateClick,
 		eventClick: handleEventClick,
 		events: calendarAppointmentsOptions,
@@ -80,11 +79,17 @@
 		},
 	};
 
-	const closeModal = (data) => {
+	const closeModal = (statusObject) => {
 		isShowModalOpen.value = false;
 		isFormModalOpen.value = false;
 
-		if (data && data.status) {
+		if (statusObject && statusObject.status) {
+			Swal.fire({
+				icon: statusObject.type,
+				title: statusObject.message,
+				showConfirmButton: false,
+				timer: 1500,
+			});
 			router.get("/dashboard");
 		}
 	};

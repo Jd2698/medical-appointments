@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class
         ]);
 
-        Specialty::factory(10)->create();
-        User::factory(10)->create();
+        Specialty::factory(4)->create();
+        User::factory(5)->create();
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -43,5 +44,14 @@ Route::middleware([
         Route::post('/', 'store')->name('doctors.store');
         Route::put('/{doctor}', 'update')->name('doctors.update');
         Route::delete('/{doctor}', 'destroy')->name('doctors.destroy');
+    });
+
+    Route::group(['prefix' => 'dashboard/patients', 'controller' => PatientController::class], function () {
+        // Route::get('/get-all-patients', 'getAll')->name('patients.get-all-patients');
+        // Route::get('/get-specialty-patients', 'getSpecialtypatients')->name('patients.get-specialty-patients');
+        Route::get('/', 'index')->name('patients.index');
+        Route::post('/', 'store')->name('patients.store');
+        Route::put('/{patient}', 'update')->name('patients.update');
+        // Route::delete('/{doctor}', 'destroy')->name('patients.destroy');
     });
 });

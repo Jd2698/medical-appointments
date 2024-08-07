@@ -2,12 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\RolesEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
-class DoctorRequest extends UserRequest
+class PatientRequest extends UserRequest
 {
     public function authorize(): bool
     {
@@ -17,7 +15,8 @@ class DoctorRequest extends UserRequest
     public function rules(): array
     {
         // Add rule
-        $this->rules['specialty_id'] = ['required', 'exists:specialties,id'];
+        $this->rules['eps'] = ['required'];
+        $this->rules['medical_history'] = ['nullable', 'max:50'];
 
         if ($this->method() == 'POST') {
             $this->rules['role'] = ['nullable'];
@@ -28,7 +27,7 @@ class DoctorRequest extends UserRequest
             $this->rules['documento_identidad'] = [
                 'required',
                 'numeric', 'min_digits:8', 'max_digits:10',
-                'unique:users,documento_identidad,' . $this->doctor->user_id
+                'unique:users,documento_identidad,' . $this->patient->user_id
             ];
         }
 

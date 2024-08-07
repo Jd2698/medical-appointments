@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->text('medical_history');
+            $table->text('medical_history')->nullable();
             $table->string('eps');
 
             $table->timestamps();

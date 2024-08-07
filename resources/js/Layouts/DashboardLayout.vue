@@ -5,6 +5,7 @@
 
 	import UsersIcon from "@/Components/Icons/UsersIcon.vue";
 	import UserMdIcon from "@/Components/Icons/UserMdIcon.vue";
+	import UserPatientIcon from "@/Components/Icons/UserPatientIcon.vue";
 	import CalendarIcon from "@/Components/Icons/CalendarIcon.vue";
 	import LogoutIcon from "@/Components/Icons/LogoutIcon.vue";
 	import HomeIcon from "@/Components/Icons/HomeIcon.vue";
@@ -62,6 +63,13 @@
 					</span>
 				</NavLink>
 
+				<NavLink :href="route('patients.index')" :active="route().current('patients.index')">
+					<UserPatientIcon height="30" />
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+						Patients
+					</span>
+				</NavLink>
+
 				<NavLink as="button" @click="logout" href="">
 					<LogoutIcon />
 					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
@@ -74,7 +82,8 @@
 		<!-- Page Content -->
 		<main class="h-screen bg-main-bg grow overflow-x-hidden overflow-y-scroll p-10 space-y-2">
 			<div class="flex flex-col md:flex-row md:justify-between relative">
-				<button class="md:hidden absolute -right-4 -top-4" @click="onHandleSidebar">
+				<!-- show -hidden sidebar -->
+				<button class="md:hidden absolute -right-6 -top-6" @click="onHandleSidebar">
 					<i class="fas fa-bars"></i>
 				</button>
 				<slot name="mainHeader" />

@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Specialty;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -45,11 +46,29 @@ class AppointmentController extends Controller
     public function index()
     {
         $specialties = Specialty::all();
-        $doctors = Doctor::with('user')->get();
-        $patients = Patient::with('user')->get();
+
+        //se puede mejorar
+        $doctors = Doctor::with('user')->whereHas('user', function ($query) {
+            $query->where('is_active', 1);
+        })->get()->map(function ($doctor) {
+            return [
+                'id' => $doctor->id,
+                'user_id' => $doctor->user_id,
+                'specialty_id' => $doctor->specialty_id,
+                'ratings' => $doctor->ratings,
+                'user_name' => $doctor->user ? $doctor->user->name : null,
+            ];
+        });
+
+        $patients = User::with('roles')->whereHas(
+            'roles',
+            function ($query) {
+                $query->where('name', 'patient');
+            }
+        )->where('is_active', 1)->get();
 
         $appointmentsStatuses = AppointmentStatusEnum::cases();
-        $appointments = Appointment::with('patient.user', 'doctor.user')->get();
+        $appointments = Appointment::with('patient', 'doctor.user')->get();
 
         return Inertia::render(
             'Appointments/Index',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\GendersEnum;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,7 +13,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles')->get();
+        $users = User::with('roles')->orderBy('is_active', 'desc')->get();
         $genders = GendersEnum::cases();
 
         return Inertia::render(
@@ -27,10 +28,9 @@ class UserController extends Controller
     public function store(UserRequest $request)
     {
         $data = $request->except('role', 'password_confirmation');
-
         $data['password'] = bcrypt($request->password);
 
-        User::create($data)->assignRole($request->role);
+        User::create($data)->assignRole('admin');
     }
 
     public function show(User $user)

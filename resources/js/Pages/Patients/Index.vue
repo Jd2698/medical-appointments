@@ -13,9 +13,9 @@
 
 	DataTable.use(DataTablesCore);
 
-	const props = defineProps(["doctors", "genders", "specialties"]);
+	const props = defineProps(["patients", "genders"]);
 	const isShowModalOpen = ref(false);
-	const modalDoctor = ref(null);
+	const modalPatient = ref(null);
 	const alertStatus = ref({ status: false });
 
 	const onHandleModal = (showModal = false, statusOjbect) => {
@@ -32,31 +32,30 @@
 
 		//si no se manda un true o un false para abrir el modal se pone null
 		if (!showModal) {
-			modalDoctor.value = null;
+			modalPatient.value = null;
 		}
 	};
 
 	const handleAction = (event) => {
 		const button = event.target;
-		const doctor_id = button.getAttribute("data-id");
+		const patient_id = button.getAttribute("data-id");
 
-		const doctor = props.doctors.find((d) => d.id == doctor_id);
+		const patient = props.patients.find((d) => d.id == patient_id);
 
 		if (button.getAttribute("role") == "edit") {
-			onHandleDoctor(doctor);
+			onHandlePatient(patient);
 		}
 	};
 
-	const onHandleDoctor = async (doctor) => {
-		modalDoctor.value = doctor;
+	const onHandlePatient = async (patient) => {
+		modalPatient.value = patient;
 		onHandleModal(true);
 	};
 
 	const columns = [
 		{ data: "user.name", title: "Name" },
 		{ data: "user.documento_identidad", title: "Documento" },
-		{ data: "specialty.name", title: "Specialty" },
-		{ data: "ratings", title: "Ratings" },
+		{ data: "eps", title: "EPS" },
 		{
 			data: null,
 			title: "Actions",
@@ -68,17 +67,11 @@
 
 	const options = {
 		responsive: true,
-		select: {
-			style: "single",
-			className: "row-selected",
-			blurable: true,
-		},
 		pageLength: 8,
 		info: true,
 		lengthChange: false,
 		language: {
 			// search: "Buscar:",
-			// lengthMenu: "Mostrar _MENU_ registros por página",
 			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
 			paginate: {
 				first: "first",
@@ -92,7 +85,7 @@
 
 <template>
 	<!-- {{$page}} -->
-	<AppLayout title="Dashboard Doctors">
+	<AppLayout title="Dashboard patients">
 
 		<template #mainHeader>
 			<div class="w-full text-end">
@@ -102,10 +95,10 @@
 			</div>
 		</template>
 
-		<Modal :show="isShowModalOpen" @close="onHandleModal" :doctor="modalDoctor" />
+		<Modal :show="isShowModalOpen" @close="onHandleModal" :patient="modalPatient" />
 
 		<div>
-			<DataTable :data="doctors" :columns="columns" :options="options" class="display table-bordered">
+			<DataTable :data="patients" :columns="columns" :options="options" class="display table-bordered">
 				<tbody @click="handleAction"></tbody>
 			</DataTable>
 		</div>

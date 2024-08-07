@@ -12,8 +12,8 @@ class RoleAndPermissionSeeder extends Seeder
     public function run(): void
     {
         $role_admin = Role::create(['name' => 'admin']);
-        $role_client = Role::create(['name' => 'client']);
-        $role_client = Role::create(['name' => 'doctor']);
+        $role_doctor = Role::create(['name' => 'doctor']);
+        $role_patient = Role::create(['name' => 'patient']);
         // $role_admin->syncPermissions($permission);
 
         $permissions_admin = [
