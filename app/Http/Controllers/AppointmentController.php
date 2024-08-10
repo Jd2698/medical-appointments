@@ -102,6 +102,6 @@ class AppointmentController extends Controller
 
     public function destroy(Appointment $appointment)
     {
-        $appointment->delete();
+        // $appointment->delete();
     }
 }

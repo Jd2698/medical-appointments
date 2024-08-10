@@ -43,10 +43,6 @@
 		phone: props.doctor ? props.doctor.user.phone : "",
 		email: props.doctor ? props.doctor.user.email : "",
 		specialty_id: props.doctor ? props.doctor.specialty.id : "select",
-		role:
-			props.doctor && props.doctor.user.roles[0]
-				? props.doctor.user.roles[0].name
-				: "doctor",
 		password: "",
 		password_confirmation: "",
 		is_active: props.doctor ? props.doctor.user.is_active : "1",

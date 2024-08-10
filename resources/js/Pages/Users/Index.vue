@@ -62,9 +62,6 @@
 		if (button.getAttribute("role") == "edit") {
 			onHandleUser(user);
 		}
-		//  else if (button.getAttribute("role") == "delete") {
-		// 	deleteUser(user);
-		// }
 	};
 
 	const onHandleUser = async (user) => {
@@ -95,7 +92,7 @@
 				}
 			},
 		},
-		{ data: "name", title: "Name" },
+		{ data: "name", title: "User name" },
 		{ data: "documento_identidad", title: "Documento" },
 		{ data: "phone", title: "Phone" },
 		{ data: "email", title: "Email" },
@@ -133,8 +130,8 @@
 
 		<template #mainHeader>
 			<div class="w-full text-end">
-				<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 font-medium p-2 rounded">
-					Add
+				<button @click="onHandleModal(true)" class="w-full md:w-32 bg-main-800 font-medium p-2 rounded">
+					Add user
 				</button>
 			</div>
 		</template>

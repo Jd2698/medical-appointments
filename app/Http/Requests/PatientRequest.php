@@ -14,13 +14,10 @@ class PatientRequest extends UserRequest
 
     public function rules(): array
     {
-        // Add rule
+        // Modify rule
         $this->rules['eps'] = ['required'];
         $this->rules['medical_history'] = ['nullable', 'max:50'];
-
-        if ($this->method() == 'POST') {
-            $this->rules['role'] = ['nullable'];
-        }
+        $this->rules['role'] = ['nullable'];
 
         if ($this->method() == 'PUT') {
             $this->rules['password'] = ['nullable', 'confirmed'];

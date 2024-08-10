@@ -53,7 +53,7 @@
 	};
 
 	const columns = [
-		{ data: "user.name", title: "Name" },
+		{ data: "user.name", title: "Patient name" },
 		{ data: "user.documento_identidad", title: "Documento" },
 		{ data: "eps", title: "EPS" },
 		{
@@ -89,8 +89,8 @@
 
 		<template #mainHeader>
 			<div class="w-full text-end">
-				<button @click="onHandleModal(true)" class="w-full md:w-20 bg-main-800 font-medium p-2 rounded">
-					Add
+				<button @click="onHandleModal(true)" class="w-full md:w-32 bg-main-800 font-medium p-2 rounded">
+					Add patient
 				</button>
 			</div>
 		</template>

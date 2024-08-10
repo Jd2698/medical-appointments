@@ -17,8 +17,6 @@ class PatientController extends Controller
             ->whereHas('user', function ($query) {
                 $query->where('is_active', 1);
             })->get();
-        // ->whereHas('user', function ($query) {
-        //     $query->whereNotNull('id');
 
         $genders = GendersEnum::cases();
 

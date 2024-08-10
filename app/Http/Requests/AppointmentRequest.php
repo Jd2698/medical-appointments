@@ -31,6 +31,8 @@ class AppointmentRequest extends FormRequest
         ];
 
         if ($this->method() == 'PUT') {
+            $rules['patient_id'] = 'nullable';
+            $rules['doctor_id'] = 'nullable';
             $rules['date'] = 'nullable';
             $rules['start_time'] = 'nullable';
             $rules['end_time'] = 'nullable';

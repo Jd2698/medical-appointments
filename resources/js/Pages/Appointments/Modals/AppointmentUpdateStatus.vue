@@ -1,19 +1,17 @@
 <script setup>
 	import { useForm } from "@inertiajs/vue3";
 	import { ref } from "vue";
+	import InputError from "@/Components/InputError.vue";
 
 	const props = defineProps({ selectedAppointment: Object });
-	const emit = defineEmits(["close"]);
-
 	// console.log(props.selectedAppointment);
+	const emit = defineEmits(["close"]);
 
 	const isButtonEditClick = ref(false);
 	const buttonName = ref("Edit");
 
 	const form = useForm({
 		status: props.selectedAppointment.allData.status,
-		patient_id: props.selectedAppointment.allData.patient.id,
-		doctor_id: props.selectedAppointment.allData.patient.id,
 	});
 
 	const handleEditClick = (methodObject) => {
@@ -57,6 +55,7 @@
 					<option :value="status">{{ status }}</option>
 				</template>
 			</select>
+			<InputError class="mt-2" :message="form.errors.status" />
 
 			<span class="block">Fecha</span>
 			<span class="text-lg">

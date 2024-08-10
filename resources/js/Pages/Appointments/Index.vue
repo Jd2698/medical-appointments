@@ -16,7 +16,7 @@
 	import { dateFormat, appointmentDateFormat } from "@/Helpers/calendar.js";
 
 	const props = defineProps({ appointments: Object });
-	console.log(props.appointments);
+	// console.log(props.appointments);
 	const isShowModalOpen = ref(false);
 	const isFormModalOpen = ref(false);
 	const selectedAppointment = ref(null);

@@ -16,12 +16,9 @@ class DoctorRequest extends UserRequest
 
     public function rules(): array
     {
-        // Add rule
+        // Modify rule
         $this->rules['specialty_id'] = ['required', 'exists:specialties,id'];
-
-        if ($this->method() == 'POST') {
-            $this->rules['role'] = ['nullable'];
-        }
+        $this->rules['role'] = ['nullable'];
 
         if ($this->method() == 'PUT') {
             $this->rules['password'] = ['nullable', 'confirmed'];

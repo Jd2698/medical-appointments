@@ -12,10 +12,11 @@
 	import { Spanish } from "flatpickr/dist/l10n/es";
 
 	const props = defineProps({ appointment: Object, date: String });
-	console.log(usePage().props.patients);
+	// console.log(usePage().props.patients);
 	const emit = defineEmits(["close"]);
 
 	const specialtyChange = ref("select");
+	const patientChange = ref(usePage().props.patients);
 	const inputSelect = ref(null);
 	const doctors = ref([]);
 
@@ -34,6 +35,8 @@
 		comment: "",
 		status: usePage().props.appointmentsStatuses[0],
 	});
+
+	const selectedPatient = ref("select");
 
 	const addflatPickr = () => {
 		// flatpickr to date
@@ -58,21 +61,44 @@
 		});
 	};
 
-	// obtener doctores
+    // reiniciar campos
+	const handlePatientChange = () => {
+		form.patient_id = selectedPatient.value;
+
+		// reiniciar los campos de especialidades y doctores
+		doctors.value = [];
+		form.doctor_id = "select";
+		specialtyChange.value = "select";
+	};
+
+	// selección de especialidad -> obtener doctores
 	const handleSelectChange = async () => {
-		const params = {
-			specialty_id: specialtyChange.value,
-		};
+		if (specialtyChange.value != "select") {
+			const params = {
+				specialty_id: specialtyChange.value,
+			};
 
-		try {
-			const res = await axios("/dashboard/doctors/get-specialty-doctors", {
-				params,
-			});
+			try {
+				const res = await axios(
+					"/dashboard/doctors/get-specialty-doctors",
+					{
+						params,
+					}
+				);
 
-			doctors.value = res.data.doctors;
-			form.doctor_id = "select";
-		} catch (error) {
-			console.log(error.response.data.errors);
+				doctors.value = res.data.doctors;
+
+				// excluir al doctor que es paciente
+				if (doctors.value.some((d) => d.user_id == form.patient_id)) {
+					doctors.value = doctors.value.filter(
+						(d) => d.user_id != form.patient_id
+					);
+				}
+
+				form.doctor_id = "select";
+			} catch (error) {
+				console.log(error.response.data.errors);
+			}
 		}
 	};
 
@@ -103,6 +129,7 @@
 	watch(startTimeInputValue, async (newValue, oldValue) => validateTimeRange());
 	watch(endTimeInputValue, async (newValue, oldValue) => validateTimeRange());
 	watch(specialtyChange, async (newValue, oldValue) => handleSelectChange());
+	watch(selectedPatient, async (newValue, oldValue) => handlePatientChange());
 
 	const submit = () => {
 		if (!rangeError.value) {
@@ -134,8 +161,8 @@
 		<div class="col-span-2">
 			<InputLabel for="patient_id" value="Patient" />
 
-			<!-- <v-select id="patient_id" :options="$page.props.patients" v-model="form.patient_id" :reduce="patient => patient.id" label="user_name" :clearable="false" /> -->
-			<v-select id="patient_id" :options="$page.props.patients" v-model="form.patient_id" :reduce="patient => patient.id" label="name" :clearable="false" />
+			<!-- el paciente es el modelo usuario -->
+			<v-select id="patient_id" :options="$page.props.patients" v-model="selectedPatient" :reduce="patient => patient.id" label="name" :clearable="false" />
 
 			<InputError class="mt-2" :message="form.errors.patient_id" />
 		</div>

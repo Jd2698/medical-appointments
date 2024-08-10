@@ -44,10 +44,6 @@
 		email: props.patient ? props.patient.user.email : "",
 		eps: props.patient ? props.patient.eps : "",
 		medical_history: props.patient ? props.patient.medical_history : "",
-		role:
-			props.patient && props.patient.user.roles[0]
-				? props.patient.user.roles[0].name
-				: "patient",
 		password: "",
 		password_confirmation: "",
 		is_active: props.patient ? props.patient.user.is_active : "1",

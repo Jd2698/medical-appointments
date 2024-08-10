@@ -31,7 +31,7 @@ class DoctorController extends Controller
             ->make();
     }
 
-    // filtro para el formulario
+    // filtro para el formulario de citas
     public function getSpecialtydoctors(Request $request)
     {
         $request->validate([
