@@ -11,6 +11,12 @@ class Specialty extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name'
+        'name',
+        'is_active'
     ];
+
+    public function doctors()
+    {
+        return $this->hasMany(Doctor::class, 'specialty_id', 'id');
+    }
 }

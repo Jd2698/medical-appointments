@@ -69,8 +69,12 @@
                 }}
 			</span>
 
+			<span class="block">Especialidad</span>
+			<span class="text-lg">{{selectedAppointment.allData.specialty.name}}</span>
+
 			<span class="block">Paciente</span>
 			<span class="text-lg">{{selectedAppointment.allData.patient.name}}</span>
+
 			<span class="block">Doctor</span>
 			<span class="text-lg">{{selectedAppointment.allData.doctor.user.name}}</span>
 

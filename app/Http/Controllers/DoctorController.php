@@ -62,7 +62,7 @@ class DoctorController extends Controller
             })->get();
 
         $genders = GendersEnum::cases();
-        $specialties = Specialty::all();
+        $specialties = Specialty::where('is_active', '1')->get();
 
         return Inertia::render(
             'Doctors/Index',

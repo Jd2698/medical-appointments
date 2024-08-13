@@ -10,6 +10,8 @@
 	import LogoutIcon from "@/Components/Icons/LogoutIcon.vue";
 	import HomeIcon from "@/Components/Icons/HomeIcon.vue";
 	import HeartIcon from "@/Components/Icons/HeartIcon.vue";
+	import BriefcaseMedical from "@/Components/Icons/BriefcaseMedical.vue";
+	import DashboardIcon from "@/Components/Icons/DashboardIcon.vue";
 
 	defineProps({
 		title: String,
@@ -22,10 +24,8 @@
 
 	const sidebarClasses = computed(() => {
 		if (isOpenSidebar.value) {
-			// return "w-52 transition-all h-screen bg-main-900 text-slate-200 text-sm shadow-lg";
 			return "block";
 		} else {
-			// return "w-3 transition-all h-screen bg-main-900 text-slate-200 text-sm shadow-lg";
 			return "hidden";
 		}
 	});
@@ -36,7 +36,6 @@
 
 	function closeMobilSidebar() {
 		onHandleSidebar();
-		// console.log(e);
 	}
 </script>
 
@@ -51,6 +50,14 @@
 				<span class="text-lg text-main-fontSide">Hospital</span>
 			</div>
 			<nav>
+
+				<NavLink :href="route('dashboard')" :active="route().current('dashboard')">
+					<DashboardIcon />
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+						Dashboard
+					</span>
+				</NavLink>
+
 				<NavLink :href="route('appointments.index')" :active="route().current('appointments.index')">
 					<CalendarIcon />
 					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
@@ -79,6 +86,13 @@
 					</span>
 				</NavLink>
 
+				<NavLink :href="route('specialties.index')" :active="route().current('specialties.index')">
+					<BriefcaseMedical height="30" />
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+						Specialties
+					</span>
+				</NavLink>
+
 				<NavLink as="button" @click="logout" href="">
 					<LogoutIcon />
 					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
@@ -100,6 +114,14 @@
 					<span class="text-lg text-main-fontSide">Hospital</span>
 				</div>
 				<nav>
+
+					<NavLink :href="route('dashboard')" :active="route().current('dashboard')">
+						<DashboardIcon />
+						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+							Dashboard
+						</span>
+					</NavLink>
+
 					<NavLink :href="route('appointments.index')" :active="route().current('appointments.index')">
 						<CalendarIcon />
 						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
@@ -125,6 +147,13 @@
 						<UserPatientIcon height="30" />
 						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
 							Patients
+						</span>
+					</NavLink>
+
+					<NavLink :href="route('specialties.index')" :active="route().current('specialties.index')">
+						<BriefcaseMedical height="30" />
+						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+							Specialties
 						</span>
 					</NavLink>
 

@@ -16,34 +16,44 @@ class UserRequest extends FormRequest
 
     public function __construct()
     {
-        $maxDate = Carbon::now()->subYears(10)->toDateString();
+        $maxDate = Carbon::now()->subYears(18)->toDateString();
         $this->rules =
             [
                 'name' => [
-                    'required', 'max: 40'
+                    'required',
+                    'max: 40'
                 ],
                 'documento_identidad' => [
                     'required',
-                    'numeric', 'min_digits:8', 'max_digits:10',
+                    'numeric',
+                    'min_digits:8',
+                    'max_digits:10',
                     'unique:users,documento_identidad'
                 ],
                 'gender' => [
-                    'required', Rule::in(GendersEnum::cases())
+                    'required',
+                    Rule::in(GendersEnum::cases())
                 ],
                 'birthdate' => [
                     'required',
-                    'date', 'before_or_equal:' . $maxDate
+                    'date',
+                    'before_or_equal:' . $maxDate
                 ],
                 'address' => ['required', 'max:30'],
                 'phone' => [
                     'required',
-                    'numeric', 'min_digits:10', 'max_digits:10'
+                    'numeric',
+                    'min_digits:10',
+                    'max_digits:10'
                 ],
                 'email' => [
-                    'required', 'email', 'max:60'
+                    'required',
+                    'email',
+                    'max:60'
                 ],
                 'password' => [
-                    'required', 'confirmed'
+                    'required',
+                    'confirmed'
                 ],
                 'role' => ['required', 'array'],
                 'role.*' => ['required', Rule::in(RolesEnum::cases())],
@@ -63,7 +73,9 @@ class UserRequest extends FormRequest
             $this->rules['documento_identidad'] =
                 [
                     'required',
-                    'numeric', 'min_digits:8', 'max_digits:10',
+                    'numeric',
+                    'min_digits:8',
+                    'max_digits:10',
                     'unique:users,documento_identidad,' . $this->user->id
                 ];
         }

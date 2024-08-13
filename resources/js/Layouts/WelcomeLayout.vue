@@ -20,8 +20,6 @@
 
 			<template v-else>
 				<Link :href="route('login')" class="font-semibold p-2 text-zinc-900 rounded-lg hover:text-main-900  focus:outline focus:outline-2  focus:outline-main-800">Log in</Link>
-
-				<Link :href="route('register')" class="ms-4 p-2 font-normal text-zinc-100 rounded-lg hover:text-white focus:outline focus:outline-2  focus:outline-main-800 bg-main-900">Register</Link>
 			</template>
 		</div>
 

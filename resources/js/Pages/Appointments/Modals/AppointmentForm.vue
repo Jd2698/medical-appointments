@@ -12,7 +12,7 @@
 	import { Spanish } from "flatpickr/dist/l10n/es";
 
 	const props = defineProps({ appointment: Object, date: String });
-	// console.log(usePage().props.patients);
+	// console.log(usePage().props.specialties);
 	const emit = defineEmits(["close"]);
 
 	const specialtyChange = ref("select");
@@ -28,6 +28,7 @@
 
 	const form = useForm({
 		patient_id: "select",
+		specialty_id: "select",
 		doctor_id: "select",
 		date: props.date,
 		start_time: "07:00",
@@ -61,7 +62,7 @@
 		});
 	};
 
-    // reiniciar campos
+	// reiniciar campos
 	const handlePatientChange = () => {
 		form.patient_id = selectedPatient.value;
 
@@ -73,18 +74,17 @@
 
 	// selección de especialidad -> obtener doctores
 	const handleSelectChange = async () => {
+		form.specialty_id = specialtyChange.value;
+		//
 		if (specialtyChange.value != "select") {
 			const params = {
 				specialty_id: specialtyChange.value,
 			};
 
 			try {
-				const res = await axios(
-					"/dashboard/doctors/get-specialty-doctors",
-					{
-						params,
-					}
-				);
+				const res = await axios("/admin/doctors/get-specialty-doctors", {
+					params,
+				});
 
 				doctors.value = res.data.doctors;
 
@@ -111,7 +111,7 @@
 		};
 
 		try {
-			const res = await axios("/dashboard/appointments/range-validation", {
+			const res = await axios("/admin/appointments/range-validation", {
 				params,
 			});
 
@@ -167,7 +167,7 @@
 			<InputError class="mt-2" :message="form.errors.patient_id" />
 		</div>
 
-		<!-- choose specialty -->
+		<!-- specialty -->
 		<div class="mt-4 ">
 			<InputLabel for="specialty_id" value="Specialty" />
 
@@ -217,16 +217,6 @@
 			<InputLabel for="comment" value="comment" />
 			<textarea id="comment" v-model="form.comment" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm"></textarea>
 			<InputError class="mt-2" :message="form.errors.comment" />
-		</div>
-
-		<!-- statuses -->
-		<div class="mt-4">
-			<InputLabel for="status" value="Status" />
-			<select v-model="form.status" name="status" id="status" class="mt-1 block w-full border-gray-300 focus:border-main-700 focus:ring-main-700 rounded-md shadow-sm">
-				<template v-for="status in $page.props.appointmentsStatuses" :key="status">
-					<option :value="status">{{ status }}</option>
-				</template>
-			</select>
 		</div>
 
 		<div class="col-span-2 flex items-center justify-end mt-4">

@@ -4,7 +4,6 @@
 
 	// components
 	import AppLayout from "@/Layouts/DashboardLayout.vue";
-	import Welcome from "@/Components/Welcome.vue";
 	import Modal from "./Modal.vue";
 
 	import DataTable from "datatables.net-vue3";
@@ -13,10 +12,10 @@
 
 	DataTable.use(DataTablesCore);
 
-	const props = defineProps(["users", "genders"]);
-	// console.log(props.users);
+	const props = defineProps(["specialties"]);
+	// console.log(props.specialties);
 	const isModalOpen = ref(false);
-	const modalUser = ref(null);
+	const modalSpecialty = ref(null);
 
 	const onHandleModal = (showModal = false, statusOjbect) => {
 		isModalOpen.value = showModal;
@@ -32,38 +31,28 @@
 
 		//si no se manda un true o un false para abrir el modal se pone null
 		if (!showModal) {
-			modalUser.value = null;
+			modalSpecialty.value = null;
 		}
 	};
 
 	const handleAction = (event) => {
 		const button = event.target;
-		const user_id = button.getAttribute("data-id");
+		const specialty_id = button.getAttribute("data-id");
 
-		const user = props.users.find((u) => u.id == user_id);
+		const specialty = props.specialties.find((u) => u.id == specialty_id);
 
 		if (button.getAttribute("role") == "edit") {
-			onHandleUser(user);
+			onHandleSpecialty(specialty);
 		}
 	};
 
-	const onHandleUser = async (user) => {
-		modalUser.value = user;
+	const onHandleSpecialty = async (specialty) => {
+		modalSpecialty.value = specialty;
 		onHandleModal(true);
 	};
 
 	const columns = [
-		{
-			data: "roles",
-			title: "Role",
-			render: function (data, type, row) {
-				if (data && data.length > 0) {
-					return data.map((d) => d.name).join(" - ");
-				} else {
-					return "Sin role";
-				}
-			},
-		},
+		{ data: "doctors_count", title: "# doctors" },
 		{
 			data: "is_active",
 			title: "Status",
@@ -75,10 +64,7 @@
 				}
 			},
 		},
-		{ data: "name", title: "User name" },
-		{ data: "documento_identidad", title: "Documento" },
-		{ data: "phone", title: "Phone" },
-		{ data: "email", title: "Email" },
+		{ data: "name", title: "Specialty name" },
 		{
 			data: null,
 			title: "Actions",
@@ -109,20 +95,20 @@
 
 <template>
 	<!-- {{$page}} -->
-	<AppLayout title="Admin / users">
+	<AppLayout title="Admin / specialties">
 
 		<template #mainHeader>
 			<div class="w-full text-end">
 				<button @click="onHandleModal(true)" class="w-full md:w-32 bg-main-800 font-medium p-2 rounded">
-					Add user
+					Add specialty
 				</button>
 			</div>
 		</template>
 
-		<Modal :show="isModalOpen" @close="onHandleModal" :user="modalUser" />
+		<Modal :show="isModalOpen" @close="onHandleModal" :specialty="modalSpecialty" />
 
 		<div>
-			<DataTable :data="users" :columns="columns" :options="options" class="display table-bordered">
+			<DataTable :data="specialties" :columns="columns" :options="options" class="display table-bordered">
 				<tbody @click="handleAction"></tbody>
 			</DataTable>
 		</div>

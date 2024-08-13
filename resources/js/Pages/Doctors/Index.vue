@@ -92,7 +92,7 @@
 
 <template>
 	<!-- {{$page}} -->
-	<AppLayout title="Dashboard Doctors">
+	<AppLayout title="Admin / doctors">
 
 		<template #mainHeader>
 			<div class="w-full text-end">

@@ -22,6 +22,7 @@ class AppointmentRequest extends FormRequest
 
         $rules = [
             'patient_id' => 'required|exists:users,id',
+            'specialty_id' => 'required|exists:specialties,id',
             'doctor_id' => 'required|exists:users,id',
             'date' => 'required|after_or_equal:' . $minDate,
             'start_time' => 'required|date_format:H:i',
@@ -32,6 +33,7 @@ class AppointmentRequest extends FormRequest
 
         if ($this->method() == 'PUT') {
             $rules['patient_id'] = 'nullable';
+            $rules['specialty_id'] = 'nullable';
             $rules['doctor_id'] = 'nullable';
             $rules['date'] = 'nullable';
             $rules['start_time'] = 'nullable';

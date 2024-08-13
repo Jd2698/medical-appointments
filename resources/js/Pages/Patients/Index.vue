@@ -85,7 +85,7 @@
 
 <template>
 	<!-- {{$page}} -->
-	<AppLayout title="Dashboard patients">
+	<AppLayout title="Admin / patients">
 
 		<template #mainHeader>
 			<div class="w-full text-end">

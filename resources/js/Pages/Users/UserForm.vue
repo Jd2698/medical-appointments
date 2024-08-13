@@ -76,9 +76,6 @@
 	});
 
 	const submit = () => {
-		// console.log(form.role);
-		// return;
-
 		if (!props.user) {
 			form.password = form.documento_identidad;
 			form.password_confirmation = form.documento_identidad;

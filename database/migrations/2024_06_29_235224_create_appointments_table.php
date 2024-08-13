@@ -16,10 +16,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id');
+            $table->unsignedBigInteger('specialty_id');
 
             // $table->foreign('patient_id')->references('id')->on('patients');
             $table->foreign('patient_id')->references('id')->on('users');
             $table->foreign('doctor_id')->references('id')->on('doctors');
+            $table->foreign('specialty_id')->references('id')->on('specialties');
 
 
             $table->date('date');

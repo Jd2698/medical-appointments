@@ -45,7 +45,7 @@ class AppointmentController extends Controller
 
     public function index()
     {
-        $specialties = Specialty::all();
+        $specialties = Specialty::with('doctors')->where('is_active', '1')->whereHas('doctors')->get();
 
         //se puede mejorar
         $doctors = Doctor::with('user')->whereHas('user', function ($query) {
@@ -68,7 +68,7 @@ class AppointmentController extends Controller
         )->where('is_active', 1)->get();
 
         $appointmentsStatuses = AppointmentStatusEnum::cases();
-        $appointments = Appointment::with('patient', 'doctor.user')->get();
+        $appointments = Appointment::with('patient', 'doctor.user', 'specialty')->get();
 
         return Inertia::render(
             'Appointments/Index',

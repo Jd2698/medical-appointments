@@ -90,13 +90,13 @@
 				showConfirmButton: false,
 				timer: 1500,
 			});
-			router.get("/dashboard");
+			router.get(route("appointments.index"));
 		}
 	};
 </script>
 
 <template>
-	<DashboardLayout title="Dashboard">
+	<DashboardLayout title="Admin / appointments">
 		<template #mainHeader>
 		</template>
 
