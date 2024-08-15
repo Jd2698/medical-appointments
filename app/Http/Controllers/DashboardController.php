@@ -10,6 +10,7 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 class DashboardController extends Controller
@@ -18,13 +19,34 @@ class DashboardController extends Controller
     {
         if (!Auth::check()) {
             return Inertia::render('Welcome');
-        } else {
-            return Inertia::render('Dashboard');
         }
+
+        return Inertia::render('Dashboard');
     }
 
     public function dashboard()
     {
+        // si es un paciente
+        if (!Auth::user()->hasAnyRole(['admin', 'doctor'])) {
+
+            $appointments = Appointment::with('doctor.user', 'patient', 'specialty')
+                ->where('patient_id', Auth::user()->id)
+                ->get()
+                ->map(function ($appointment) {
+                    return [
+                        'specialty_name' => $appointment->specialty->name,
+                        'doctor_name' => $appointment->doctor->user->name,
+                        'patient_name' => $appointment->patient->name,
+                        'status' => $appointment->status,
+                        'date' => $appointment->date,
+                        'start_time' => $appointment->format_start_time,
+                        'end_time' => $appointment->format_end_time,
+                    ];
+                });
+            $isPatient = true;
+            return Inertia::render('ClientWelcome', compact('appointments', 'isPatient'));
+        }
+
         $usersQuantity = User::count();
         $adminQuantity = User::role('admin')->count();
         $disabledUsersQuantity = User::where('is_active', '0')->count();
@@ -68,5 +90,10 @@ class DashboardController extends Controller
             'appointmentsQuantity',
             'appointmentsStatuses'
         ));
+    }
+
+    public function redirectBack()
+    {
+        return redirect()->back();
     }
 }

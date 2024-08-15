@@ -1,6 +1,6 @@
 <script setup>
 	import { Link, usePage, router } from "@inertiajs/vue3";
-	import { ref, onMounted, computed } from "vue";
+	import { ref, onMounted, computed, onBeforeMount } from "vue";
 
 	// components
 	import AppLayout from "@/Layouts/DashboardLayout.vue";
@@ -52,7 +52,7 @@
 		onHandleModal(true);
 	};
 
-	const columns = [
+	let columns = [
 		{ data: "user.name", title: "Patient name" },
 		{ data: "user.documento_identidad", title: "Documento" },
 		{ data: "eps", title: "EPS" },
@@ -64,6 +64,12 @@
 			},
 		},
 	];
+
+	onBeforeMount(() => {
+		if (!usePage().props.auth.user.roles.some((r) => r.name == "admin")) {
+			columns = columns.filter((f) => f.title != "Actions");
+		}
+	});
 
 	const options = {
 		responsive: true,
@@ -87,7 +93,7 @@
 	<!-- {{$page}} -->
 	<AppLayout title="Admin / patients">
 
-		<template #mainHeader>
+		<template #mainHeader v-if="$page.props.auth.user.roles.find((r) => r.name == 'admin')">
 			<div class="w-full text-end">
 				<button @click="onHandleModal(true)" class="w-full md:w-32 bg-main-800 font-medium p-2 rounded">
 					Add patient
@@ -95,7 +101,7 @@
 			</div>
 		</template>
 
-		<Modal :show="isShowModalOpen" @close="onHandleModal" :patient="modalPatient" />
+		<Modal v-if="$page.props.auth.user.roles.find((r) => r.name == 'admin')" :show="isShowModalOpen" @close="onHandleModal" :patient="modalPatient" />
 
 		<div>
 			<DataTable :data="patients" :columns="columns" :options="options" class="display table-bordered">

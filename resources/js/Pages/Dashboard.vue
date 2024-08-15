@@ -1,6 +1,7 @@
 <script setup>
 	import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 	import DashboardInfo from "@/Components/UI/DashboardInfo.vue";
+	import { usePage } from "@inertiajs/vue3";
 
 	const props = defineProps([
 		"appointmentsStatuses",
@@ -15,11 +16,13 @@
 		"disabledPatientsQuantity",
 		"disabledSpecialtiesQuantity",
 	]);
+
+	// console.log(usePage().props.auth.user.name.split(" ")[0]);
 </script>
 
 <template>
 	<DashboardLayout title="Dashboard">
-		<h1 class="text-3xl font-extrabold text-zinc-700 pb-4">Dashboard</h1>
+		<h1 class="text-3xl font-extrabold text-zinc-700 pb-4">Welcome to the Dashboard, {{$page.props.auth.user.name.split(" ")[0]}}</h1>
 		<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl">
 
 			<DashboardInfo title="Users" :quantity="usersQuantity" :active="disabledUsersQuantity" faIcon="fa-users" :adicional="'Admins: '+adminQuantity" />

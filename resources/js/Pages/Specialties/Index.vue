@@ -1,6 +1,6 @@
 <script setup>
 	import { Link, usePage, router } from "@inertiajs/vue3";
-	import { ref, onMounted, computed } from "vue";
+	import { ref, onMounted, computed, onBeforeMount } from "vue";
 
 	// components
 	import AppLayout from "@/Layouts/DashboardLayout.vue";
@@ -51,7 +51,7 @@
 		onHandleModal(true);
 	};
 
-	const columns = [
+	let columns = [
 		{ data: "doctors_count", title: "# doctors" },
 		{
 			data: "is_active",
@@ -73,6 +73,12 @@
 			},
 		},
 	];
+
+	onBeforeMount(() => {
+		if (!usePage().props.auth.user.roles.some((r) => r.name == "admin")) {
+			columns = columns.filter((f) => f.title != "Actions");
+		}
+	});
 
 	const options = {
 		responsive: true,
@@ -97,7 +103,7 @@
 	<!-- {{$page}} -->
 	<AppLayout title="Admin / specialties">
 
-		<template #mainHeader>
+		<template #mainHeader v-if="$page.props.auth.user.roles.find((r) => r.name == 'admin')">
 			<div class="w-full text-end">
 				<button @click="onHandleModal(true)" class="w-full md:w-32 bg-main-800 font-medium p-2 rounded">
 					Add specialty
@@ -105,7 +111,7 @@
 			</div>
 		</template>
 
-		<Modal :show="isModalOpen" @close="onHandleModal" :specialty="modalSpecialty" />
+		<Modal v-if="$page.props.auth.user.roles.find((r) => r.name == 'admin')" :show="isModalOpen" @close="onHandleModal" :specialty="modalSpecialty" />
 
 		<div>
 			<DataTable :data="specialties" :columns="columns" :options="options" class="display table-bordered">

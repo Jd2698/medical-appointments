@@ -46,7 +46,7 @@
 				: ["admin"],
 		password: "",
 		password_confirmation: "",
-		is_active: props.user ? props.user.is_active : "0",
+		is_active: props.user ? props.user.is_active : "1",
 	});
 
 	const getMaxDate = () => {

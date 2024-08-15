@@ -1,6 +1,6 @@
 <script setup>
 	import { Link, usePage, router } from "@inertiajs/vue3";
-	import { ref, onMounted, computed } from "vue";
+	import { ref, onMounted, computed, onBeforeMount } from "vue";
 
 	// components
 	import AppLayout from "@/Layouts/DashboardLayout.vue";
@@ -14,6 +14,8 @@
 	DataTable.use(DataTablesCore);
 
 	const props = defineProps(["doctors", "genders", "specialties"]);
+	// console.log(usePage().props.auth.user.roles.find((r) => r.name == "admin"));
+
 	const isShowModalOpen = ref(false);
 	const modalDoctor = ref(null);
 	const alertStatus = ref({ status: false });
@@ -52,7 +54,7 @@
 		onHandleModal(true);
 	};
 
-	const columns = [
+	let columns = [
 		{ data: "user.name", title: "Doctor name" },
 		{ data: "user.documento_identidad", title: "Documento" },
 		{ data: "specialty.name", title: "Specialty" },
@@ -65,6 +67,12 @@
 			},
 		},
 	];
+
+	onBeforeMount(() => {
+		if (!usePage().props.auth.user.roles.some((r) => r.name == "admin")) {
+			columns = columns.filter((f) => f.title != "Actions");
+		}
+	});
 
 	const options = {
 		responsive: true,
@@ -94,7 +102,7 @@
 	<!-- {{$page}} -->
 	<AppLayout title="Admin / doctors">
 
-		<template #mainHeader>
+		<template #mainHeader v-if="$page.props.auth.user.roles.find((r) => r.name == 'admin')">
 			<div class="w-full text-end">
 				<button @click="onHandleModal(true)" class="w-full md:w-32 bg-main-800 font-medium p-2 rounded">
 					Add doctor
@@ -102,7 +110,7 @@
 			</div>
 		</template>
 
-		<Modal :show="isShowModalOpen" @close="onHandleModal" :doctor="modalDoctor" />
+		<Modal v-if="$page.props.auth.user.roles.find((r) => r.name == 'admin')" :show="isShowModalOpen" @close="onHandleModal" :doctor="modalDoctor" />
 
 		<div>
 			<DataTable :data="doctors" :columns="columns" :options="options" class="display table-bordered">

@@ -1,6 +1,6 @@
 <script setup>
 	import { ref, computed } from "vue";
-	import { Head, Link, router } from "@inertiajs/vue3";
+	import { Head, Link, router, usePage } from "@inertiajs/vue3";
 	import NavLink from "@/Components/NavLink.vue";
 
 	import UsersIcon from "@/Components/Icons/UsersIcon.vue";
@@ -16,6 +16,9 @@
 	defineProps({
 		title: String,
 	});
+
+	const isAuthPatient = usePage().props.isPatient;
+	// console.log(isAuthPatient);
 
 	const isOpenSidebar = ref(true);
 	const onHandleSidebar = () => {
@@ -50,78 +53,14 @@
 				<span class="text-lg text-main-fontSide">Hospital</span>
 			</div>
 			<nav>
-
 				<NavLink :href="route('dashboard')" :active="route().current('dashboard')">
 					<DashboardIcon />
 					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-						Dashboard
+						{{isAuthPatient ? 'My appointments' : 'Dashboard'}}
 					</span>
 				</NavLink>
 
-				<NavLink :href="route('appointments.index')" :active="route().current('appointments.index')">
-					<CalendarIcon />
-					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-						Appointments
-					</span>
-				</NavLink>
-
-				<NavLink :href="route('users.index')" :active="route().current('users.index')">
-					<UsersIcon />
-					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-						Users
-					</span>
-				</NavLink>
-
-				<NavLink :href="route('doctors.index')" :active="route().current('doctors.index')">
-					<UserMdIcon height="30" />
-					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-						Doctors
-					</span>
-				</NavLink>
-
-				<NavLink :href="route('patients.index')" :active="route().current('patients.index')">
-					<UserPatientIcon height="30" />
-					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-						Patients
-					</span>
-				</NavLink>
-
-				<NavLink :href="route('specialties.index')" :active="route().current('specialties.index')">
-					<BriefcaseMedical height="30" />
-					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-						Specialties
-					</span>
-				</NavLink>
-
-				<NavLink as="button" @click="logout" href="">
-					<LogoutIcon />
-					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-						Logout
-					</span>
-				</NavLink>
-			</nav>
-		</div>
-
-		<!-- mobil sidebar -->
-		<div :class="sidebarClasses + ' md:hidden  h-screen w-screen absolute left-0 top-0 z-50 bg-[rgba(200,200,200,.3)]'" @click="closeMobilSidebar">
-			<div class="h-full w-52 transition-all bg-main-900 text-slate-200 text-sm shadow-lg relative" @click.stop="">
-				<button class="absolute right-3 top-3" @click="onHandleSidebar">
-					<i class="fa-solid fa-up-right-and-down-left-from-center"></i>
-				</button>
-
-				<div class="h-20 border-b border-zinc-900 flex items-center gap-1 pl-2">
-					<HeartIcon class="text-main-800" />
-					<span class="text-lg text-main-fontSide">Hospital</span>
-				</div>
-				<nav>
-
-					<NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-						<DashboardIcon />
-						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
-							Dashboard
-						</span>
-					</NavLink>
-
+				<template v-if="!isAuthPatient">
 					<NavLink :href="route('appointments.index')" :active="route().current('appointments.index')">
 						<CalendarIcon />
 						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
@@ -129,7 +68,7 @@
 						</span>
 					</NavLink>
 
-					<NavLink :href="route('users.index')" :active="route().current('users.index')">
+					<NavLink v-if="$page.props.auth.user.roles.find((r) => r.name == 'admin')" :href="route('users.index')" :active="route().current('users.index')">
 						<UsersIcon />
 						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
 							Users
@@ -156,6 +95,74 @@
 							Specialties
 						</span>
 					</NavLink>
+
+				</template>
+
+				<NavLink as="button" @click="logout" href="">
+					<LogoutIcon />
+					<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+						Logout
+					</span>
+				</NavLink>
+			</nav>
+		</div>
+
+		<!-- mobil sidebar -->
+		<div :class="sidebarClasses + ' md:hidden  h-screen w-screen absolute left-0 top-0 z-50 bg-[rgba(200,200,200,.3)]'" @click="closeMobilSidebar">
+			<div class="h-full w-52 transition-all bg-main-900 text-slate-200 text-sm shadow-lg relative" @click.stop="">
+				<button class="absolute right-3 top-3" @click="onHandleSidebar">
+					<i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+				</button>
+
+				<div class="h-20 border-b border-zinc-900 flex items-center gap-1 pl-2">
+					<HeartIcon class="text-main-800" />
+					<span class="text-lg text-main-fontSide">Hospital</span>
+				</div>
+				<nav>
+
+					<NavLink :href="route('dashboard')" :active="route().current('dashboard')">
+						<DashboardIcon />
+						<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+							{{isAuthPatient ? 'My appointments' : 'Dashboard'}}
+						</span>
+					</NavLink>
+
+					<template v-if="!isAuthPatient">
+						<NavLink :href="route('appointments.index')" :active="route().current('appointments.index')">
+							<CalendarIcon />
+							<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+								Appointments
+							</span>
+						</NavLink>
+
+						<NavLink :href="route('users.index')" :active="route().current('users.index')">
+							<UsersIcon />
+							<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+								Users
+							</span>
+						</NavLink>
+
+						<NavLink :href="route('doctors.index')" :active="route().current('doctors.index')">
+							<UserMdIcon height="30" />
+							<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+								Doctors
+							</span>
+						</NavLink>
+
+						<NavLink :href="route('patients.index')" :active="route().current('patients.index')">
+							<UserPatientIcon height="30" />
+							<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+								Patients
+							</span>
+						</NavLink>
+
+						<NavLink :href="route('specialties.index')" :active="route().current('specialties.index')">
+							<BriefcaseMedical height="30" />
+							<span class="text-main-fontSide group-hover:text-main-hover group-[.is-active]:text-main-active">
+								Specialties
+							</span>
+						</NavLink>
+					</template>
 
 					<NavLink as="button" @click="logout" href="">
 						<LogoutIcon />

@@ -63,9 +63,9 @@
 				{{
                     selectedAppointment.fecha
                     +" | "+
-                    selectedAppointment.allData.start_time.substring(0, 5)
+                    selectedAppointment.allData.format_start_time
                     +" - "+
-                    selectedAppointment.allData.end_time.substring(0, 5)
+                    selectedAppointment.allData.format_end_time
                 }}
 			</span>
 

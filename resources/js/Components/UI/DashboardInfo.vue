@@ -15,7 +15,7 @@
 		<h2 class="absolute left-2 top-2 text-sm font-semibold">{{title}}</h2>
 
 		<i :class="iconClasses" fill="currentColor"></i>
-		<p>Quantity: {{quantity}}</p>
+		<p v-if="quantity || quantity == 0">Quantity: {{quantity}}</p>
 
 		<div class="w-full mt-2">
 

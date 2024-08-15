@@ -21,6 +21,10 @@ class RoleAndPermissionSeeder extends Seeder
             'read users',
             'update users',
             'delete users',
+            'create specialties',
+            'read specialties',
+            'update specialties',
+            'delete specialties',
         ];
 
         foreach ($permissions_admin as $permission) {
